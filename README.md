@@ -19,15 +19,15 @@ API REST desarrollada para la gestión de reservas de salones de cumpleaños par
 - express-validator (Validaciones)
 
 ## 📁 Estructura del Proyecto   
-tp-sistemas-reservas-salones/
-├── config/          # Configuración BD
-├── controllers/     # Lógica de controladores  
-├── middleware/      # Middlewares (auth, validación, errores)
-├── models/          # Modelos de Sequelize
-├── routes/          # Definición de rutas
-├── services/        # Lógica de negocio
-├── utils/           # Utilidades (constantes, respuestas)
-└── database/        # Migraciones y seeds   
+tp-sistemas-reservas-salones/   
+├── config/          # Configuración BD   
+├── controllers/     # Lógica de controladores       
+├── middleware/      # Middlewares (auth, validación, errores)   
+├── models/          # Modelos de Sequelize   
+├── routes/          # Definición de rutas   
+├── services/        # Lógica de negocio   
+├── utils/           # Utilidades (constantes, respuestas)   
+└── database/        # Migraciones y seeds      
 
 ## 🔧 Variables de Entorno
 Crear archivo .env en la raíz del proyecto:
