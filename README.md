@@ -49,11 +49,9 @@ JWT_SECRET - Clave secreta para JWT (usar una clave larga y segura)
 
 ## ⚙️ Scripts Disponibles
 ```bash
-npm start          # Iniciar en producción
-npm run dev        # Iniciar con nodemon (desarrollo)
-npm test           # Ejecutar tests
-npm run migrate    # Ejecutar migraciones (TODO)
-npm run seed       # Poblar BD con datos iniciales (TODO)
+npm i              # Instalar dependencias
+npm run dev        # Iniciar con nodemon (index.js ideal mientras programás)
+npm start          # Iniciar modo normal
 ```
 
 ## 📖 Documentación de la API
