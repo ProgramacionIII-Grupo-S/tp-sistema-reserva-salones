@@ -2,6 +2,8 @@ import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import pool from './config/db.js';
+import { swaggerUi, swaggerSpec } from './config/swagger.js';
+import authRoutes from './routes/authRoutes.js';
 
 dotenv.config();
 const app = express();
@@ -11,22 +13,43 @@ app.use(cors());
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // 🏠 Ruta principal con información del API
 app.get("/", (req, res) => {
   res.json({ 
-    message: "Bienvenido al Sistema de Reservas de Salones",
+    message: "Bienvenido al Sistema de Reservas de Salones PROGIII",
     version: "1.0.0",
     endpoints: {
       auth: "/api/auth",
-      users: "/api/users",
       salones: "/api/salones",
-      reservas: "/api/reservas",
-      servicios: "/api/servicios",
-      turnos: "/api/turnos"
+      documentation: "/api-docs"
     },
-    team: "Grupo S - UNER Programación III" 
+    team: "Grupo S - UNER Programación III",
+    fecha_entrega: "09/10/2025 - Primera Entrega"
   });
+});
+
+
+// Health check endpoint
+app.get("/api/health", async (req, res) => {
+  try {
+    // Verificar conexión a la base de datos
+    const [result] = await pool.query('SELECT 1 as connection_test');
+    
+    res.json({ 
+      status: "OK",
+      message: "Sistema funcionando correctamente",
+      database: result.length > 0 ? "Conectado" : "Error",
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    res.status(500).json({ 
+      status: "ERROR",
+      message: "Error de conexión a la base de datos",
+      error: error.message 
+    });
+  }
 });
 
 // =============================
@@ -35,6 +58,7 @@ app.get("/", (req, res) => {
 // 🔐 Rutas de Autenticación (Ejemplo)
 // import authRoutes from './routes/authRoutes.js';
 // app.use('/api/auth', authRoutes);
+app.use('/api/auth', authRoutes);
 
 // =============================
 // 📌 ZONA PARA MIDDLEWARES PERSONALIZADOS (Añadir middlewares aquí)
@@ -67,6 +91,7 @@ app.listen(PORT, () => {
   Servidor Reservas iniciado
   Puerto: ${PORT}
   Conexión a la Base de Datos activa
+  Swagger disponible en http://localhost:${PORT}/api-docs
   `);
 });
 
