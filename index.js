@@ -55,10 +55,15 @@ app.get("/api/health", async (req, res) => {
 // =============================
 // 📌 ZONA PARA IMPORTAR RUTAS (Añadir rutas aquí)
 // =============================
+import serviciosRoutes from './routes/servicios.js';
+import turnosRoutes from './routes/turnos.js';
 // 🔐 Rutas de Autenticación (Ejemplo)
 // import authRoutes from './routes/authRoutes.js';
 // app.use('/api/auth', authRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/servicios', serviciosRoutes);
+app.use('/api/turnos', turnosRoutes);
+
 
 // =============================
 // 📌 ZONA PARA MIDDLEWARES PERSONALIZADOS (Añadir middlewares aquí)
