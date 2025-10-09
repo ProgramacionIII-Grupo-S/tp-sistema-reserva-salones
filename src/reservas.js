@@ -4,10 +4,12 @@ import cors from "cors";
 import pool from './config/db.js';
 import { swaggerUi, swaggerSpec } from './config/swagger.js';
 import authRoutes from './routes/authRoutes.js';
+import serviciosRoutes from './routes/servicios.js';
+import turnosRoutes from './routes/turnos.js';
 
 dotenv.config();
 const app = express();
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 
@@ -55,10 +57,7 @@ app.get("/api/health", async (req, res) => {
 // =============================
 // 📌 ZONA PARA IMPORTAR RUTAS (Añadir rutas aquí)
 // =============================
-import serviciosRoutes from './routes/servicios.js';
-import turnosRoutes from './routes/turnos.js';
 // 🔐 Rutas de Autenticación (Ejemplo)
-// import authRoutes from './routes/authRoutes.js';
 // app.use('/api/auth', authRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/servicios', serviciosRoutes);

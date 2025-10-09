@@ -1,4 +1,4 @@
-import * as salonesServicios from '../../servicios/salonesServicios.js';
+import * as salonesServicios from '../services/salonesServicios.js';
 
 export const getSalones = async (req, res) => {
   try {

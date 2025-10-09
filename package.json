@@ -13,10 +13,10 @@
   "license": "ISC",
   "author": "Grupo S",
   "type": "module",
-  "main": "index.js",
+  "main": "src/reservas.js",
   "scripts": {
-    "start": "node index.js",
-    "dev": "nodemon index.js",
+    "start": "node src/reservas.js",
+    "dev": "nodemon src/reservas.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
