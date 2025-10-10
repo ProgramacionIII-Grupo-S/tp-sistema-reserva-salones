@@ -17,7 +17,7 @@ const router = express.Router();
 
 /**
  * @swagger
- * /api/servicios:
+ * /servicios:
  *   get:
  *     summary: Listar todos los servicios activos
  *     tags: [Servicios]
@@ -47,7 +47,7 @@ const router = express.Router();
 
 /**
  * @swagger
- * /api/servicios/{id}:
+ * /servicios/{id}:
  *   put:
  *     summary: Actualizar un servicio por ID
  *     tags: [Servicios]

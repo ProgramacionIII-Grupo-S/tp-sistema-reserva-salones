@@ -17,7 +17,7 @@ const router = express.Router();
 
 /**
  * @swagger
- * /api/turnos:
+ * /turnos:
  *   get:
  *     summary: Listar todos los turnos activos
  *     tags: [Turnos]
@@ -50,7 +50,7 @@ const router = express.Router();
 
 /**
  * @swagger
- * /api/turnos/{id}:
+ * /turnos/{id}:
  *   put:
  *     summary: Actualizar un turno existente
  *     tags: [Turnos]
