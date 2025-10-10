@@ -1,6 +1,6 @@
 import pool from "../config/db.js";
 
-// 📋 Listar turnos activos
+//Lista turnos activos
 export const listarTurnos = async (req, res) => {
   try {
     const [rows] = await pool.query("SELECT * FROM turnos WHERE activo = 1");
@@ -10,7 +10,7 @@ export const listarTurnos = async (req, res) => {
   }
 };
 
-// ➕ Crear turno
+// crear turno
 export const crearTurno = async (req, res) => {
   const { orden, hora_desde, hora_hasta } = req.body;
 
@@ -31,7 +31,7 @@ export const crearTurno = async (req, res) => {
   }
 };
 
-// ✏️ Actualizar turno
+// actualizar turno
 export const actualizarTurno = async (req, res) => {
   const { id } = req.params;
   const { orden, hora_desde, hora_hasta } = req.body;
@@ -51,7 +51,7 @@ export const actualizarTurno = async (req, res) => {
   }
 };
 
-// 🗑️ Eliminar (soft delete)
+// eliminar (soft delete)
 export const eliminarTurno = async (req, res) => {
   const { id } = req.params;
 

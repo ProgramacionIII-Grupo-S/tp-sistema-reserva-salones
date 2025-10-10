@@ -1,6 +1,6 @@
 import pool from "../config/db.js";
 
-// 📋 Listar servicios activos
+// Listar servicios activos
 export const listarServicios = async (req, res) => {
   try {
     const [rows] = await pool.query("SELECT * FROM servicios WHERE activo = 1");
@@ -10,7 +10,7 @@ export const listarServicios = async (req, res) => {
   }
 };
 
-// ➕ Crear servicio
+// crear servicio
 export const crearServicio = async (req, res) => {
   const { descripcion, importe } = req.body;
 
@@ -29,7 +29,7 @@ export const crearServicio = async (req, res) => {
   }
 };
 
-// ✏️ Actualizar servicio
+// actualiza servicio
 export const actualizarServicio = async (req, res) => {
   const { id } = req.params;
   const { descripcion, importe } = req.body;
@@ -49,7 +49,7 @@ export const actualizarServicio = async (req, res) => {
   }
 };
 
-// 🗑️ Eliminar (soft delete)
+//limina (soft delete)
 export const eliminarServicio = async (req, res) => {
   const { id } = req.params;
 
