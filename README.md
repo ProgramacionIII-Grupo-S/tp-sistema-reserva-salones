@@ -20,7 +20,7 @@ API REST desarrollada para la gestión de reservas de salones de cumpleaños par
 
 ## 📁 Estructura del Proyecto   
 tp-sistemas-reservas-salones/   
-src
+src   
     ├── config/          # Configuración BD   
     ├── controllers/     # Lógica de controladores       
     ├── middleware/      # Middlewares (auth, validación, errores)   
@@ -31,22 +31,20 @@ src
     └── database/        # Migraciones y seeds      
 
 ## 🔧 Variables de Entorno
-Crear archivo .env en la raíz del proyecto:
+### Variables requeridas:
+Crear archivo .env al mismo nivel que el package.json:
 
 PORT=3000
 
-DB_HOST=localhost
-DB_PORT=3306
-DB_USER=root
-DB_PASSWORD=tu_password
-DB_NAME=reservas
+DB_HOST=localhost   
+DB_PORT=tu_puerto (conmunmente 3006)    
+DB_USER=tu_user (generalmente puede ser root)   
+DB_PASSWORD=tu_password (si no tienes dejalo vacio)   
+DB_NAME=reservas   
 
-JWT_SECRET=tu_clave_secreta_jwt_super_larga_y_segura_aqui
-JWT_EXPIRES_IN=1h
+JWT_SECRET=tu_clave_secreta_jwt_super_larga_y_segura_aqui (usar una clave larga y segura)   
+JWT_EXPIRES_IN=1h   
 
-### Variables requeridas:
-DB_PASSWORD - Tu contraseña de MySQL
-JWT_SECRET - Clave secreta para JWT (usar una clave larga y segura)
 
 ## ⚙️ Scripts Disponibles
 ```bash
