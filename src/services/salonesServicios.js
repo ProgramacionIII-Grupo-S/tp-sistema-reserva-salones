@@ -14,6 +14,11 @@ export const obtenerSalonPorId = async (id) => {
 
 export const crearSalon = async (data) => {
   const { titulo, direccion, latitud, longitud, capacidad, importe } = data;
+
+  const [existe] = await pool.query('SELECT * FROM salones WHERE titulo = ? AND activo = 1', [titulo]);
+  if (existe.length > 0) {
+    return null;
+  }
   const [result] = await pool.query(
     'INSERT INTO salones (titulo, direccion, latitud, longitud, capacidad, importe) VALUES (?, ?, ?, ?, ?, ?)',
     [titulo, direccion, latitud, longitud, capacidad, importe]
@@ -22,6 +27,11 @@ export const crearSalon = async (data) => {
 };
 
 export const actualizarSalon = async (id, data) => {
+  const salonExiste = await obtenerSalonPorId(id);
+  if (!salonExiste) {
+    return null; 
+  }
+  
   const { titulo, direccion, latitud, longitud, capacidad, importe } = data;
   await pool.query(
     'UPDATE salones SET titulo=?, direccion=?, latitud=?, longitud=?, capacidad=?, importe=? WHERE salon_id=?',
@@ -31,6 +41,10 @@ export const actualizarSalon = async (id, data) => {
 };
 
 export const eliminarSalon = async (id) => {
+  const salonExiste = await obtenerSalonPorId(id);
+  if (!salonExiste) {
+    return null;
+  }
   await pool.query('UPDATE salones SET activo=0 WHERE salon_id=?', [id]);
-  return { mensaje: 'Salon eliminado correctamente' };
+  return id;
 };
