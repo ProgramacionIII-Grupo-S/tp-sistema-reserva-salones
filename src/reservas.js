@@ -6,6 +6,7 @@ import { swaggerUi, swaggerSpec } from './config/swagger.js';
 import authRoutes from './routes/authRoutes.js';
 import serviciosRoutes from './routes/servicios.js';
 import turnosRoutes from './routes/turnos.js';
+import salonesRouter from './routes/salonesRutas.js';
 
 dotenv.config();
 const app = express();
@@ -54,22 +55,11 @@ app.get("/api/health", async (req, res) => {
   }
 });
 
-// =============================
-// 📌 ZONA PARA IMPORTAR RUTAS (Añadir rutas aquí)
-// =============================
-// 🔐 Rutas de Autenticación (Ejemplo)
-// app.use('/api/auth', authRoutes);
+// 📌 Rutas 
 app.use('/api/auth', authRoutes);
 app.use('/api/servicios', serviciosRoutes);
 app.use('/api/turnos', turnosRoutes);
-
-
-// =============================
-// 📌 ZONA PARA MIDDLEWARES PERSONALIZADOS (Añadir middlewares aquí)
-// =============================
-// 🛡️ Middleware de Autenticación (ejemplo)
-// import { authenticateToken } from './middleware/authMiddleware.js';
-// app.use('/api', authenticateToken);
+app.use('/api/salones', salonesRouter);
 
 
 app.use((req, res) => {
