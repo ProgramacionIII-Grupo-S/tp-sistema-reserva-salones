@@ -1,6 +1,8 @@
 import express from 'express';
 import { register, login, verify } from '../controllers/authController.js';
 import { authenticateToken } from '../middleware/authMiddleware.js';
+import { registerValidator, loginValidator } from '../middleware/validators/validator.js';
+import { handleValidationErrors } from '../middleware/validators/validator.js'
 
 const router = express.Router();
 
@@ -43,7 +45,7 @@ const router = express.Router();
  *       400:
  *         description: Error en los datos enviados
  */
-router.post('/register', register);
+router.post('/register', registerValidator, handleValidationErrors, register);
 
 /**
  * @swagger
@@ -71,7 +73,7 @@ router.post('/register', register);
  *       401:
  *         description: Credenciales inválidas
  */
-router.post('/login', login);
+router.post('/login', loginValidator, handleValidationErrors, login);
 
 /**
  * @swagger
