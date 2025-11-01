@@ -2,7 +2,6 @@ export const USER_TYPES = {
   ADMIN: 1,
   EMPLEADO: 2,
   CLIENTE: 3,
-  
 };
 
 // Map para mostrar nombre legible

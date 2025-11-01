@@ -7,6 +7,7 @@ import authRoutes from './routes/authRoutes.js';
 import serviciosRoutes from './routes/servicios.js';
 import turnosRoutes from './routes/turnos.js';
 import salonesRouter from './routes/salonesRutas.js';
+import userRoutes from './routes/userRoutes.js';
 
 dotenv.config();
 const app = express();
@@ -57,6 +58,7 @@ app.get("/api/health", async (req, res) => {
 
 // 📌 Rutas 
 app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
 app.use('/api/servicios', serviciosRoutes);
 app.use('/api/turnos', turnosRoutes);
 app.use('/api/salones', salonesRouter);
