@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard - Estadísticas de Reservas</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+    <div id="loading" class="loading">Cargando panel...</div>
+    <div id="app" style="display:none;">
+        <div class="dashboard-container">
+            <header class="header">
+                <h1>📊 Dashboard de Reservas</h1>
+                <p>Estadísticas y métricas en tiempo real - Panel de Administración</p>
+                <div class="button-header">
+                    <span class="admin-badge">
+                        <i class="fas fa-user-shield"></i>Administrador
+                    </span>
+                    <button id="logoutBtn" class="btn-logout">Cerrar sesión</button>
+                </div>
+            </header>
+            <div id="dashboardContent">
+                <div class="controls">
+                    <div class="control-group">
+                        <label><i class="fas fa-calendar-alt"></i> Año:</label>
+                        <select id="selectAnio">
+                            <option value="2024">2024</option>
+                            <option value="2025" selected>2025</option>
+                            <option value="2026">2026</option>
+                        </select>
+                    </div> 
+                    <div class="control-group">
+                        <label><i class="fas fa-calendar-day"></i> Desde:</label>
+                        <input type="date" id="fechaDesde">
+                    </div>                    
+                    <div class="control-group">
+                        <label><i class="fas fa-calendar-day"></i> Hasta:</label>
+                        <input type="date" id="fechaHasta">
+                    </div>
+                    <button onclick="cargarEstadisticas()">
+                        <i class="fas fa-sync-alt"></i> Actualizar Dashboard
+                    </button> 
+                    <button class="success" onclick="cargarTodo()">
+                        <i class="fas fa-chart-bar"></i> Cargar Todo
+                    </button>
+                    <div class="download-buttons">
+                        <button class="danger" onclick="descargarReportePDF()">
+                            <i class="fas fa-file-pdf"></i> Descargar PDF
+                        </button>
+                        <button class="success" onclick="descargarReporteCSV()">
+                            <i class="fas fa-file-csv"></i> Descargar CSV
+                        </button>
+                    </div>
+                </div>
+                <div id="error" class="error" style="display: none;"></div>
+                <div id="statsGrid" class="stats-grid" style="display: none;">
+                    <div class="stat-card">
+                        <h3><i class="fas fa-calendar"></i> Total Reservas (Año)</h3>
+                        <div class="stat-value" id="totalReservasAnio">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3><i class="fas fa-money-bill-wave"></i> Ingresos Totales (Año)</h3>
+                        <div class="stat-value ingresos" id="ingresosTotalesAnio">$0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3><i class="fas fa-chart-line"></i> Reservas (Período)</h3>
+                        <div class="stat-value" id="totalReservasPeriodo">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3><i class="fas fa-wallet"></i> Ingresos (Período)</h3>
+                        <div class="stat-value ingresos" id="ingresosTotalesPeriodo">$0</div>
+                    </div>
+                </div>
+                <div class="report-section">
+                    <h3><i class="fas fa-download"></i> Reportes Rápidos</h3>
+                    <div class="report-grid">
+                        <div class="report-card">
+                            <h4><i class="fas fa-chart-pie"></i> Estadísticas Mensuales</h4>
+                            <p>Reporte PDF con estadísticas detalladas por mes</p>
+                            <div class="report-actions">
+                                <button class="danger" onclick="descargarEstadisticasMensualPDF()">
+                                    <i class="fas fa-file-pdf"></i> PDF
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="report-card">
+                            <h4><i class="fas fa-building"></i> Estadísticas por Salón</h4>
+                            <p>Reporte PDF con rendimiento de cada salón</p>
+                            <div class="report-actions">
+                                <button class="danger" onclick="descargarEstadisticasSalonPDF()">
+                                    <i class="fas fa-file-pdf"></i> PDF
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="report-card">
+                            <h4><i class="fas fa-file-export"></i> Exportar Datos</h4>
+                            <p>Descargar datos completos en formato CSV</p>
+                            <div class="report-actions">
+                                <button class="success" onclick="descargarReporteCSV()">
+                                    <i class="fas fa-file-csv"></i> CSV
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="charts-container">
+                    <div class="chart-card">
+                        <div class="chart-actions">
+                            <button class="chart-action-btn" onclick="exportarChartComoPNG('chartReservasMes')">
+                                <i class="fas fa-download"></i> PNG
+                            </button>
+                        </div>
+                        <h3><i class="fas fa-chart-bar"></i> Reservas por Mes</h3>
+                        <canvas id="chartReservasMes"></canvas>
+                    </div>
+                    
+                    <div class="chart-card">
+                        <div class="chart-actions">
+                            <button class="chart-action-btn" onclick="exportarChartComoPNG('chartReservasSalon')">
+                                <i class="fas fa-download"></i> PNG
+                            </button>
+                        </div>
+                        <h3><i class="fas fa-building"></i> Reservas por Salón</h3>
+                        <canvas id="chartReservasSalon"></canvas>
+                    </div>
+                    
+                    <div class="chart-card">
+                        <div class="chart-actions">
+                            <button class="chart-action-btn" onclick="exportarChartComoPNG('chartTopClientes')">
+                                <i class="fas fa-download"></i> PNG
+                            </button>
+                        </div>
+                        <h3><i class="fas fa-users"></i> Top Clientes</h3>
+                        <canvas id="chartTopClientes"></canvas>
+                    </div>
+                    
+                    <div class="chart-card">
+                        <h3><i class="fas fa-table"></i> Detalles por Salón</h3>
+                        <div id="tablaSalones"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="js/dashboard.js"></script>
+</body>
+</html>

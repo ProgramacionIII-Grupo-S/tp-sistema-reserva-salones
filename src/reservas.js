@@ -2,6 +2,8 @@ import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import pool from './config/db.js';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import { swaggerUi, swaggerSpec } from './config/swagger.js';
 import authRoutes from './routes/authRoutes.js';
 import serviciosRoutes from './routes/servicios.js';
@@ -19,6 +21,11 @@ app.use(cors());
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+app.use(express.static(path.join(__dirname, 'public')));
+
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // 🏠 Ruta principal con información del API
@@ -66,6 +73,14 @@ app.use('/api/turnos', turnosRoutes);
 app.use('/api/salones', salonesRouter);
 app.use('/api/reportes', reportRoutes);
 app.use('/api/test', testRoutes);
+
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'login.html'));
+});
+
+app.get('/dashboard', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
+});
 
 app.use((req, res) => {
   res.status(404).json({ 

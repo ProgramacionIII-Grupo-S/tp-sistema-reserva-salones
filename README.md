@@ -44,6 +44,11 @@ DB_NAME=reservas
 JWT_SECRET=tu_clave_secreta_jwt_super_larga_y_segura_aqui (usar una clave larga y segura)   
 JWT_EXPIRES_IN=1h   
 
+CORREO=tuemail@gmail.com
+CLAVE=abcd efgh ijkl mnop   # la clave de 16 caracteres sin espacios
+
+
+
 
 ## ⚙️ Scripts Disponibles
 ```bash
