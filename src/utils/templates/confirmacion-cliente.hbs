@@ -1,0 +1,108 @@
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Confirmación de Reserva</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #f7f7f7;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 650px;
+      margin: 20px auto;
+      padding: 25px;
+      background-color: #ffffff;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    header {
+      text-align: center;
+      padding-bottom: 15px;
+      border-bottom: 2px solid #e0e0e0;
+    }
+    header h1 {
+      margin: 0;
+      color: #03912e;
+    }
+    .success-badge {
+      background-color: #e8f5e9;
+      color: #03912e;
+      padding: 15px;
+      border-radius: 5px;
+      text-align: center;
+      margin: 15px 0;
+      font-weight: bold;
+      font-size: 18px;
+    }
+    ul {
+      list-style-type: none;
+      padding-left: 0;
+    }
+    li {
+      margin: 12px 0;
+      font-size: 16px;
+      color: #333;
+      padding: 10px;
+      background-color: #f9f9f9;
+      border-radius: 5px;
+      border-left: 4px solid #03912e;
+    }
+    .detail-label {
+      font-weight: bold;
+      color: #555;
+    }
+    .instructions {
+      background-color: #e3f2fd;
+      padding: 15px;
+      border-radius: 5px;
+      margin: 20px 0;
+      border-left: 4px solid #2196f3;
+    }
+    footer {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 13px;
+      color: #666;
+      border-top: 1px solid #e0e0e0;
+      padding-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🎉 Confirmación de Reserva</h1>
+    </header>
+
+    <div class="success-badge">
+      ✅ ¡Tu reserva ha sido confirmada!
+    </div>
+
+    <p>Hola <strong>{{cliente}}</strong>,</p>
+    <p>Tu reserva ha sido confirmada exitosamente. Aquí tienes los detalles:</p>
+
+    <h2>Detalles de tu Reserva:</h2>
+    <ul>
+      <li><span class="detail-label">Fecha:</span> {{fecha}}</li>
+      <li><span class="detail-label">Salón:</span> {{salon}}</li>
+      <li><span class="detail-label">Turno:</span> {{turno}}</li>
+      <li><span class="detail-label">Temática:</span> {{tematica}}</li>
+      <li><span class="detail-label">Servicios contratados:</span> {{servicios}}</li>
+      <li><span class="detail-label">Importe Total:</span> ${{importe_total}}</li>
+    </ul>
+
+    <div class="instructions">
+      <h3>📋 Próximos pasos:</h3>
+      <p>• Guarda este email como comprobante</p>
+      <p>• Presentate 15 minutos antes del turno reservado</p>
+      <p>• Para consultas, contacta con nuestro equipo</p>
+    </div>
+
+    <footer>
+      &copy; 2025 Sistema de Reservas de Salones - Te esperamos para celebrar 🎂
+    </footer>
+  </div>
+</body>
+</html>

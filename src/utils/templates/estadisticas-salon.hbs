@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Estadísticas por Salón</title>
+    <style>
+        body { 
+            font-family: 'Arial', sans-serif; 
+            margin: 20px; 
+            color: #333;
+            font-size: 12px;
+        }
+        .header { 
+            text-align: center; 
+            margin-bottom: 20px;
+            border-bottom: 2px solid #333;
+            padding-bottom: 10px;
+        }
+        .header h1 { 
+            margin: 0; 
+            color: #2c3e50;
+            font-size: 18px;
+        }
+        .resumen {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .tabla { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-top: 10px;
+            font-size: 11px;
+        }
+        .tabla th, .tabla td { 
+            border: 1px solid #ddd; 
+            padding: 6px; 
+            text-align: left; 
+        }
+        .tabla th { 
+            background-color: #2c3e50; 
+            color: white; 
+        }
+        .tabla tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .fecha {
+            font-size: 10px;
+            color: #7f8c8d;
+            text-align: right;
+        }
+        .total-row {
+            font-weight: bold;
+            background-color: #e9ecef !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Estadísticas por Salón</h1>
+        <div class="fecha">Generado el: {{fechaGeneracion}}</div>
+    </div>
+
+    <div class="resumen">
+        <strong>Total Salones:</strong> {{total_salones}} | 
+        <strong>Total Reservas:</strong> {{total_reservas}} | 
+        <strong>Ingresos Totales:</strong> ${{ingresos_totales}}
+    </div>
+
+    <table class="tabla">
+        <thead>
+            <tr>
+                <th>Salón</th>
+                <th>Total Reservas</th>
+                <th>Ingresos</th>
+                <th>Promedio por Reserva</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each datos}}
+            <tr>
+                <td>{{salon}}</td>
+                <td>{{total_reservas}}</td>
+                <td>${{ingresos_salon}}</td>
+                <td>${{promedio_por_reserva}}</td>
+            </tr>
+            {{/each}}
+        </tbody>
+    </table>
+</body>
+</html>

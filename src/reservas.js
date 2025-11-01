@@ -8,6 +8,8 @@ import serviciosRoutes from './routes/servicios.js';
 import turnosRoutes from './routes/turnos.js';
 import salonesRouter from './routes/salonesRutas.js';
 import userRoutes from './routes/userRoutes.js';
+import reportRoutes from './routes/reportRoutes.js';
+import testRoutes from './routes/testRoutes.js';
 
 dotenv.config();
 const app = express();
@@ -62,7 +64,8 @@ app.use('/api/users', userRoutes);
 app.use('/api/servicios', serviciosRoutes);
 app.use('/api/turnos', turnosRoutes);
 app.use('/api/salones', salonesRouter);
-
+app.use('/api/reportes', reportRoutes);
+app.use('/api/test', testRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ 

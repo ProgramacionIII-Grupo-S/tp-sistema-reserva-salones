@@ -6,7 +6,6 @@ API REST desarrollada para la gestión de reservas de salones de cumpleaños par
 ## 👥 Equipo de Desarrollo
 - [Aguilar, Priscila Magali](https://github.com/PriscilaAguilar1214)
 - [Aguilar, Yamila Maillen](https://github.com/YamilaAguilar)
-- [Blanc, Eugenia](https://github.com/eugenialite)
 - [Gainza, Marcos Gabriel](https://github.com/marcosgainza)
 - [Unrein, Yanina Soledad](https://github.com/Yanina-Unrein)
 
@@ -51,6 +50,28 @@ JWT_EXPIRES_IN=1h
 npm i              # Instalar dependencias
 npm run dev        # Iniciar con nodemon (index.js ideal mientras programás)
 npm start          # Iniciar modo normal
+```
+
+## 🗄️ Migración y Configuración de la Base de Datos
+El proyecto incluye scripts automatizados para crear la base de datos, sus tablas y los procedimientos almacenados.  
+Asegúrate de tener el archivo `.env` correctamente configurado antes de ejecutar cualquiera de estos comandos.
+
+### 📦 Crear y configurar toda la base de datos
+Crea la base de datos `reservas`, las tablas y los procedimientos almacenados automáticamente:
+```bash
+npm run db:setup
+```
+
+### 🔍 Verificar estado de la base de datos
+Permite comprobar si la conexión funciona correctamente, qué tablas y procedimientos existen:
+```bash
+npm run db:check
+```
+
+### ⚙️ Migrar únicamente los procedimientos almacenados
+Ejecuta o actualiza solo los stored procedures sin tocar las tablas existentes:
+```bash
+npm run db:procedures
 ```
 
 ## 📖 Documentación de la API
