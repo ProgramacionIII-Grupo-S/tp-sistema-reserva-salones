@@ -86,14 +86,14 @@ INSERT INTO turnos (orden, hora_desde, hora_hasta) VALUES
 (3, '18:00:00', '20:00:00');
 
 INSERT INTO usuarios (nombre, apellido, nombre_usuario, contrasenia, tipo_usuario) VALUES
--- Administradores (tipo 1)
+-- Administradores (tipo 1) pasword: "password123"
 ('Alberto', 'López', 'alblop@correo.com','$2b$10$LrYBKSfwpUA5cpu/J.GsTekLlbM7BRCo60wjFHP/yC4SksuPCNity', 1),
 ('Pamela', 'Gómez', 'pamgom@correo.com','$2b$10$LrYBKSfwpUA5cpu/J.GsTekLlbM7BRCo60wjFHP/yC4SksuPCNity', 1),
 ('Esteban', 'Ciro', 'estcir@correo.com','$2b$10$LrYBKSfwpUA5cpu/J.GsTekLlbM7BRCo60wjFHP/yC4SksuPCNity', 1),
--- Empleados (tipo 2)
+-- Empleados (tipo 2) pasword: "password123"
 ('William', 'Corbalán', 'wilcor@correo.com','$2b$10$LrYBKSfwpUA5cpu/J.GsTekLlbM7BRCo60wjFHP/yC4SksuPCNity', 2),
 ('Anahí', 'Flores', 'anaflo@correo.com','$2b$10$LrYBKSfwpUA5cpu/J.GsTekLlbM7BRCo60wjFHP/yC4SksuPCNity', 2),
--- Clientes (tipo 3)
+-- Clientes (tipo 3) pasword: "password123"
 ('Oscar', 'Ramirez', 'oscram@correo.com','$2b$10$LrYBKSfwpUA5cpu/J.GsTekLlbM7BRCo60wjFHP/yC4SksuPCNity', 2),
 ('Claudia', 'Juárez', 'clajua@correo.com','$2b$10$LrYBKSfwpUA5cpu/J.GsTekLlbM7BRCo60wjFHP/yC4SksuPCNity', 2);
 
