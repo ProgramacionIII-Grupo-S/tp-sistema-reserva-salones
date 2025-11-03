@@ -1,0 +1,7 @@
+"ID_RESERVA";"FECHA_RESERVA";"CLIENTE";"CELULAR";"SALÓN";"HORA_DESDE";"HORA_HASTA";"TEMÁTICA";"SERVICIOS";"IMPORTE_SALÓN";"IMPORTE_SERVICIOS";"IMPORTE_TOTAL"
+"5";"12/12/2025";"William Corbalan";"No especificado";"Principal";"12:00";"14:00";"Messi";"Ninguno";"0,00";"0,00";"100.000,00"
+"6";"25/11/2025";"Anahi Flores";"No especificado";"Secundario";"12:00";"14:00";"Palermo";"Ninguno";"0,00";"0,00";"500.000,00"
+"1";"08/10/2025";"William Corbalan";"No especificado";"Principal";"12:00";"14:00";"Plim plim";"Mesa dulce, Mozos, Sonido, Tarjetas de invitacion";"0,00";"200.000,00";"200.000,00"
+"2";"08/10/2025";"William Corbalan";"No especificado";"Secundario";"12:00";"14:00";"Messi";"Mesa dulce, Sonido";"0,00";"100.000,00";"100.000,00"
+"3";"08/10/2025";"Anahi Flores";"No especificado";"Secundario";"12:00";"14:00";"Palermo";"Mesa dulce, Mozos, Sonido, Tarjetas de invitacion";"0,00";"500.000,00";"500.000,00"
+"4";"15/09/2025";"William Corbalan";"No especificado";"Principal";"12:00";"14:00";"Plim plim";"Ninguno";"0,00";"0,00";"200.000,00"

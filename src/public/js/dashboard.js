@@ -1,6 +1,10 @@
 const API_BASE = 'http://localhost:3000/api';
 let jwtToken = localStorage.getItem('token') || '';
 
+let chartReservasMes = null;
+let chartReservasSalon = null;
+let chartTopClientes = null;
+
 if (!jwtToken) {
     window.location.href = 'login.html';
 }
@@ -9,12 +13,12 @@ if (!jwtToken) {
 async function fetchConAuth(url, options = {}) {
     options.headers = { ...(options.headers || {}), ...getAuthHeaders() };
     const res = await fetch(url, options);
-
-    if (res.status === 401) {
+    if (res.status === 401 || res.status === 403) {
+        console.warn('Token expirado o inválido. Cerrando sesión...');
+        mostrarNotificacion('Tu sesión ha expirado. Iniciá sesión nuevamente.', 'error');
         redirigirLogin();
-        throw new Error('No autorizado');
-    }
-
+        throw new Error('Token expirado o no autorizado');
+    }   
     return res;
 }
 
@@ -27,9 +31,10 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('fechaHasta').value = hoy.toISOString().split('T')[0];
 
     if (jwtToken) {
-        console.log(jwtToken)
         cargarTodo();
     }
+    
+    document.getElementById('logoutBtn').addEventListener('click', cerrarSesion);
 });
 
 function getAuthHeaders() {
@@ -98,15 +103,76 @@ function ocultarError() {
     document.getElementById('error').style.display = 'none';
 }
 
+async function cargarEstadisticasGenerales() {
+    const response = await fetchConAuth(`${API_BASE}/reportes/estadisticas-generales`);
+    const data = await response.json();
+
+    document.getElementById('totalServicios').textContent = data.total_servicios;
+    document.getElementById('totalEmpleados').textContent = data.total_empleados;
+    document.getElementById('totalClientes').textContent = data.total_clientes;
+    document.getElementById('totalSalones').textContent = data.total_salones;
+    document.getElementById('ingresosMesActual').textContent = `$${parseFloat(data.ingresos_mes_actual).toLocaleString()}`;
+}
+
+async function cargarListaEmpleados() {
+    const response = await fetchConAuth(`${API_BASE}/reportes/lista-empleados`);
+    const empleados = await response.json();
+
+    const empleadosHTML = empleados.map(emp => `
+        <div class="empleado-card">
+            <div class="empleado-avatar">
+                <i class="fas fa-user-tie"></i>
+            </div>
+            <div class="empleado-info">
+                <h4>${emp.nombre} ${emp.apellido}</h4>
+                <p><i class="fas fa-envelope"></i> ${emp.nombre_usuario}</p>
+                <p><i class="fas fa-phone"></i> ${emp.celular || 'No especificado'}</p>
+                <small>Ingresó: ${new Date(emp.creado).toLocaleDateString('es-AR')}</small>
+            </div>
+        </div>
+    `).join('');
+
+    document.getElementById('listaEmpleados').innerHTML = empleadosHTML;
+}
+
+async function cargarServiciosPopulares() {
+    const response = await fetchConAuth(`${API_BASE}/reportes/servicios-populares`);
+    const servicios = await response.json();
+
+    const serviciosHTML = servicios.map(serv => `
+        <div class="servicio-card">
+            <div class="servicio-header">
+                <h4>${serv.descripcion}</h4>
+                <span class="precio">$${parseFloat(serv.importe).toLocaleString()}</span>
+            </div>
+            <div class="servicio-stats">
+                <div class="stat">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>${serv.total_contrataciones} contrataciones</span>
+                </div>
+                <div class="stat">
+                    <i class="fas fa-money-bill-wave"></i>
+                    <span>$${parseFloat(serv.ingresos_totales || 0).toLocaleString()} recaudado</span>
+                </div>
+            </div>
+        </div>
+    `).join('');
+
+    document.getElementById('serviciosPopulares').innerHTML = serviciosHTML;
+}
+
 async function cargarTodo() {
     mostrarLoading(true);
     ocultarError();
 
     const tareas = [
-        { fn: cargarReservasPorMes, id: 'chartReservasMes' },
-        { fn: cargarIngresosPeriodo, id: 'ingresosTotalesPeriodo' },
-        { fn: cargarReservasPorSalon, id: 'chartReservasSalon' },
-        { fn: cargarReservasPorCliente, id: 'chartTopClientes' }
+        { fn: cargarReservasPorMes, id:'chartReservasMes' },
+        { fn: cargarIngresosPeriodo, id:'ingresosTotalesPeriodo' },
+        { fn: cargarReservasPorSalon, id:'chartReservasSalon' },
+        { fn: cargarReservasPorCliente, id:'chartTopClientes' },
+          { fn: cargarEstadisticasGenerales, id:'statsGrid' },
+        { fn: cargarListaEmpleados, id:'listaEmpleados' },
+        { fn: cargarServiciosPopulares, id:'serviciosPopulares' }
     ];
 
     try {
@@ -172,10 +238,12 @@ async function cargarReservasPorCliente() {
 }
 
 // Funciones de gráficos y tablas
-
 function crearChartReservasMes(datos) {
     const ctx = document.getElementById('chartReservasMes').getContext('2d');
-    new Chart(ctx, {
+    if (chartReservasMes) {
+        chartReservasMes.destroy();
+    }
+    chartReservasMes = new Chart(ctx, {
         type: 'bar',
         data: {
             labels: datos.map(item => item.mes_nombre),
@@ -193,8 +261,11 @@ function crearChartReservasMes(datos) {
 
 function crearChartReservasSalon(datos) {
     const ctx = document.getElementById('chartReservasSalon').getContext('2d');
-    new Chart(ctx, {
-        type: 'doughnut',
+    if (chartReservasSalon) {
+        chartReservasSalon.destroy();
+    }
+    chartReservasSalon = new Chart(ctx, {
+        type: 'pie',
         data: {
             labels: datos.map(item => item.salon),
             datasets: [{
@@ -209,8 +280,10 @@ function crearChartReservasSalon(datos) {
 function crearChartTopClientes(datos) {
     const topClientes = datos.slice(0, 5);
     const ctx = document.getElementById('chartTopClientes').getContext('2d');
-
-    new Chart(ctx, {
+    if (chartTopClientes) {
+        chartTopClientes.destroy();
+    }
+    chartTopClientes = new Chart(ctx, {
         type: 'bar',
         data: {
             labels: topClientes.map(item => item.cliente),
@@ -249,7 +322,6 @@ function crearTablaSalones(datos) {
 }
 
 // Funciones de descarga
-
 async function descargarReportePDF() {
     if (!jwtToken) return redirigirLogin();
 

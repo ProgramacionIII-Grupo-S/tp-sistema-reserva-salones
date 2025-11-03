@@ -95,6 +95,38 @@ export const getReservasPorCliente = async (req, res) => {
   }
 };
 
+export const getEstadisticasGenerales = async (req, res) => {
+  try {
+    const datos = await ReporteModel.estadisticasGenerales();
+    res.json(datos);
+  } catch (error) {
+    console.error('Error en getEstadisticasGenerales:', error);
+    res.status(500).json({ error: 'Error al obtener estadísticas generales' });
+  }
+};
+
+// Lista de empleados
+export const getListaEmpleados = async (req, res) => {
+  try {
+    const empleados = await ReporteModel.listaEmpleados();
+    res.json(empleados);
+  } catch (error) {
+    console.error('Error en getListaEmpleados:', error);
+    res.status(500).json({ error: 'Error al obtener lista de empleados' });
+  }
+};
+
+// Servicios más populares
+export const getServiciosPopulares = async (req, res) => {
+  try {
+    const servicios = await ReporteModel.serviciosPopulares();
+    res.json(servicios);
+  } catch (error) {
+    console.error('Error en getServiciosPopulares:', error);
+    res.status(500).json({ error: 'Error al obtener servicios populares' });
+  }
+};
+
 // Generar PDF de reservas
 export const generarReportePDF = async (req, res) => {
   try {
@@ -128,37 +160,42 @@ export const generarReportePDF = async (req, res) => {
 
 // Generar CSV de reservas
 export const generarReporteCSV = async (req, res) => {
-  try {
-    const { fecha_desde, fecha_hasta } = req.query;
-    
-    if (!fecha_desde || !fecha_hasta) {
-      return res.status(400).json({ error: 'fecha_desde y fecha_hasta son requeridos' });
+    try {
+        const { fecha_desde, fecha_hasta } = req.query;
+        
+        if (!fecha_desde || !fecha_hasta) {
+            return res.status(400).json({ error: 'fecha_desde y fecha_hasta son requeridos' });
+        }
+        
+        const reservas = await ReporteModel.detalleReservasCompleto(fecha_desde, fecha_hasta);
+        
+        if (reservas.length === 0) {
+            return res.status(404).json({ error: 'No hay reservas en el período seleccionado' });
+        }
+        
+        const csvPath = await informeService.generarReservasCSV(reservas);
+        
+        res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+        res.setHeader('Content-Disposition', 
+            `attachment; filename="reporte-reservas-${fecha_desde}-a-${fecha_hasta}.csv"`);
+        
+        // Enviar archivo
+        const fileStream = fs.createReadStream(csvPath);
+        fileStream.pipe(res);
+        
+        // Limpiar después de enviar
+        fileStream.on('end', () => {
+            try {
+                fs.unlinkSync(csvPath);
+            } catch (unlinkError) {
+                console.error('Error eliminando archivo temporal:', unlinkError);
+            }
+        });
+        
+    } catch (error) {
+        console.error('Error en generarReporteCSV:', error);
+        res.status(500).json({ error: 'Error al generar reporte CSV: ' + error.message });
     }
-    
-    const reservas = await ReporteModel.detalleReservasCompleto(fecha_desde, fecha_hasta);
-    
-    if (reservas.length === 0) {
-      return res.status(404).json({ error: 'No hay reservas en el período seleccionado' });
-    }
-    
-    const csvPath = await informeService.generarReservasCSV(reservas);
-    
-    res.download(csvPath, `reporte-reservas-${fecha_desde}-a-${fecha_hasta}.csv`, (err) => {
-      if (err) {
-        console.error('Error descargando CSV:', err);
-      }
-      // Limpiar archivo temporal después de descargar
-      try {
-        fs.unlinkSync(csvPath);
-      } catch (unlinkError) {
-        console.error('Error eliminando archivo temporal:', unlinkError);
-      }
-    });
-    
-  } catch (error) {
-    console.error('Error en generarReporteCSV:', error);
-    res.status(500).json({ error: 'Error al generar reporte CSV' });
-  }
 };
 
 // Generar PDF de estadísticas mensuales
