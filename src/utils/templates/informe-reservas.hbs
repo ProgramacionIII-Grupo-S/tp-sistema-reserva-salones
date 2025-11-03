@@ -90,34 +90,32 @@
 
     {{#if reservas.length}}
         {{#each reservas}}
-        <div class="reserva">
-            <div class="reserva-header">
-                Reserva #{{reserva_id}} - {{fecha_reserva}}
+            <div class="reserva">
+                <div class="reserva-header">
+                    Reserva #{{this.reserva_id}} - {{this.fecha_reserva}}
+                </div>
+                <div class="reserva-detalle">
+                    <div><strong>Cliente:</strong> {{this.cliente}}</div>
+                    <div><strong>Teléfono:</strong> {{this.celular}}</div>
+                    <div><strong>Salón:</strong> {{this.salon}}</div>
+                    <div><strong>Turno:</strong> {{this.hora_desde}} - {{this.hora_hasta}}</div>
+                    <div><strong>Temática:</strong> {{this.tematica}}</div>
+                    <div><strong>Servicios:</strong> {{this.servicios}}</div>
+                    <div><strong>Importe Salón:</strong> ${{this.importe_salon}}</div>
+                    <div><strong>Importe Servicios:</strong> ${{this.importe_servicios}}</div>
+                    <div><strong>Total:</strong> ${{this.importe_total}}</div>
+                </div>
             </div>
-            <div class="reserva-detalle">
-                <div><strong>Cliente:</strong> {{cliente}}</div>
-                <div><strong>Teléfono:</strong> {{celular}}</div>
-                <div><strong>Salón:</strong> {{salon}}</div>
-                <div><strong>Turno:</strong> {{hora_desde}} - {{hora_hasta}}</div>
-                <div><strong>Temática:</strong> {{tematica}}</div>
-                <div><strong>Servicios:</strong> {{servicios}}</div>
-                <div><strong>Importe Salón:</strong> ${{importe_salon}}</div>
-                <div><strong>Importe Servicios:</strong> ${{importe_servicios}}</div>
-                <div><strong>Total:</strong> ${{importe_total}}</div>
-            </div>
-        </div>
         {{/each}}
+        
+        <div class="totales">
+            <h3>Resumen General</h3>
+            <p>Total Reservas: {{totalReservas}} | Ingresos Totales: ${{totalIngresos}}</p>
+        </div>
     {{else}}
         <div class="no-data">
             No hay reservas para el período seleccionado
         </div>
-    {{/if}}
-
-    {{#if reservas.length}}
-    <div class="totales">
-        <h3>Resumen General</h3>
-        <p>Total Reservas: {{totalReservas}} | Ingresos Totales: ${{totalIngresos}}</p>
-    </div>
     {{/if}}
 </body>
 </html>

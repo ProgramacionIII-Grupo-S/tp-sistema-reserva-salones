@@ -50,6 +50,36 @@ class ReporteModel {
       throw error;
     }
   }
+
+   static async estadisticasGenerales() {
+    try {
+      const [rows] = await db.query('CALL sp_estadisticas_generales()');
+      return rows[0][0];
+    } catch (error) {
+      console.error('Error en estadisticasGenerales:', error);
+      throw error;
+    }
+  }
+
+  static async listaEmpleados() {
+    try {
+      const [rows] = await db.query('CALL sp_lista_empleados()');
+      return rows[0];
+    } catch (error) {
+      console.error('Error en listaEmpleados:', error);
+      throw error;
+    }
+  }
+
+  static async serviciosPopulares() {
+    try {
+      const [rows] = await db.query('CALL sp_servicios_populares()');
+      return rows[0];
+    } catch (error) {
+      console.error('Error en serviciosPopulares:', error);
+      throw error;
+    }
+  }
 }
 
 export default ReporteModel;
