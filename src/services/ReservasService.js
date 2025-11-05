@@ -1,7 +1,7 @@
 import pool from "../config/db.js";
 
 export default class ReservasService {
-  // crear reserva
+  // crea una nueva reserva
   async crear({ usuario_id, salon_id, turno_id, fecha_reserva, importe_salon = 0, importe_total = 0 }) {
     try {
       const sql = `
@@ -18,18 +18,22 @@ export default class ReservasService {
         importe_total,
       ]);
 
-      // retornar la reserva recién creada
+      // Retorna la reserva recién creada
       return await this.buscarPorId(result.insertId);
     } catch (error) {
-      console.error("Error en ReservasService.crear:", error.message);
+      console.error("error en ReservasService.crear:", error.message);
       throw error;
     }
   }
 
-  // obtener todas las reservas
+  // obtiene todas las reservas
   async buscarTodos() {
     const sql = `
-      SELECT r.*, s.titulo AS salon, t.descripcion AS turno, u.nombre AS usuario
+      SELECT 
+        r.*, 
+        s.titulo AS salon, 
+        CONCAT(t.hora_desde, ' a ', t.hora_hasta) AS turno, 
+        u.nombre AS usuario
       FROM reservas r
       JOIN salones s ON r.salon_id = s.salon_id
       JOIN turnos t ON r.turno_id = t.turno_id
@@ -40,12 +44,12 @@ export default class ReservasService {
     return rows;
   }
 
-  // buscar reserva por ID
+  // buscar una reserva por ID 
   async buscarPorId(id) {
     const [reserva] = await pool.query(`SELECT * FROM reservas WHERE reserva_id = ?`, [id]);
     if (!reserva.length) return null;
 
-    // traer servicios 
+    // trae servicios asociados a la reserva
     const [servicios] = await pool.query(
       `
       SELECT s.descripcion, rs.importe
@@ -60,7 +64,7 @@ export default class ReservasService {
     return reserva[0];
   }
 
-  // actualizar reserva
+  // actualiza 1 reserva existente
   async actualizar(id, { fecha_reserva, salon_id, turno_id }) {
     const sql = `
       UPDATE reservas 
@@ -72,7 +76,7 @@ export default class ReservasService {
     return result.affectedRows > 0 ? await this.buscarPorId(id) : null;
   }
 
-  // eliminar reserva
+  // aliminar una reserva
   async eliminar(id) {
     const [result] = await pool.query(`DELETE FROM reservas WHERE reserva_id = ?`, [id]);
     return result.affectedRows > 0;
