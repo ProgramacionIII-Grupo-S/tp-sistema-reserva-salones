@@ -11,7 +11,6 @@ export const USER_TYPE_NAMES = {
   [USER_TYPES.CLIENTE]: 'Cliente'
 };
 
-// Función para validar tipo de usuario
 export const isValidUserType = (type) => {
   return Object.values(USER_TYPES).includes(Number(type));
 };

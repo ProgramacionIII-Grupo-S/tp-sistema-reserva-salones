@@ -11,7 +11,7 @@ import {
   getEstadisticasGenerales,
   getListaEmpleados,
   getServiciosPopulares 
-} from '../controllers/reportController.js';
+} from '../controllers/reportesController.js';
 import { authenticateToken, requireAdmin } from '../middleware/authMiddleware.js';
 
 const router = express.Router();

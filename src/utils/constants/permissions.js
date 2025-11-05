@@ -1,6 +1,5 @@
 import { USER_TYPES } from '../userTypes.js';
 
-// Permisos detallados por rol
 export const PERMISSIONS = {
   [USER_TYPES.ADMIN]: [
     'users:read', 'users:create', 'users:update', 'users:delete',

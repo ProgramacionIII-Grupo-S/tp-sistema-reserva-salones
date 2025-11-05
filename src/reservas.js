@@ -10,7 +10,7 @@ import serviciosRoutes from './routes/servicios.js';
 import turnosRoutes from './routes/turnos.js';
 import salonesRouter from './routes/salonesRutas.js';
 import userRoutes from './routes/userRoutes.js';
-import reportRoutes from './routes/reportRoutes.js';
+import reportRoutes from './routes/reportesRoutes.js';
 import testRoutes from './routes/testRoutes.js';
 
 dotenv.config();

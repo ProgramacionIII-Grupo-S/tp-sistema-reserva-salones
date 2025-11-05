@@ -1,8 +1,7 @@
 import jwt from 'jsonwebtoken';
-import { jwtConfig } from '../config/jwtConfig.js';
-import User from '../models/User.js';
+import User from '../db/User.js';
 import { USER_TYPES } from '../utils/constants/userTypes.js';
-
+import { jwtConfig } from '../config/jwtConfig.js';
 
 export const authenticateToken = async (req, res, next) => {
   const authHeader = req.headers['authorization'];
@@ -17,7 +16,7 @@ export const authenticateToken = async (req, res, next) => {
 
     const user = await User.findById(decoded.usuario_id);
     if (!user) {
-      return res.status(401).json({ error: 'Usuario no válido' });
+      return res.status(401).json({ error: 'Usuario no válido o inactivo' });
     }
 
     req.user = user;
@@ -30,8 +29,12 @@ export const authenticateToken = async (req, res, next) => {
 
 export const authorize = (...allowedRoles) => {
   return (req, res, next) => {
+    if (!req.user) {
+      return res.status(401).json({ error: 'No autenticado' });
+    }
+
     if (!allowedRoles.includes(req.user.tipo_usuario)) {
-      return res.status(403).json({ 
+      return res.status(403).json({
         error: 'No tienes permisos para esta acción',
         requiredRoles: allowedRoles,
         yourRole: req.user.tipo_usuario
@@ -41,11 +44,9 @@ export const authorize = (...allowedRoles) => {
   };
 };
 
-// Middleware específico para admin
 export const requireAdmin = authorize(USER_TYPES.ADMIN);
-
-// Middleware para admin y empleado
 export const requireAdminOrEmployee = authorize(USER_TYPES.ADMIN, USER_TYPES.EMPLEADO);
+
 
 
 
