@@ -7,90 +7,123 @@ export default class ReservasController {
     this.notificacionesService = new NotificacionesService();
   }
 
-  // Crear nueva reserva
+  //  crear nueva reserva
   crear = async (req, res) => {
     try {
       const datos = req.body;
-      const nueva = await this.reservasService.crear(datos);
+
+      // valida campos básicos, vienen validados por express-validator
+      if (!datos.usuario_id || !datos.salon_id || !datos.turno_id || !datos.fecha_reserva) {
+        return res.status(400).json({
+          ok: false,
+          mensaje: "faltan campos obligatorios para crear la reserva",
+        });
+      }
+
+      const nuevaReserva = await this.reservasService.crear(datos);
+
+      // enviar notificación 
+      this.notificacionesService
+        .notificarNuevaReservaAdmin({
+          fecha: nuevaReserva.fecha_reserva,
+          salon: nuevaReserva.salon,
+          usuario: nuevaReserva.usuario,
+        })
+        .catch((err) => console.error("error al notificar:", err.message));
 
       res.status(201).json({
         ok: true,
-        mensaje: "Reserva creada correctamente",
-        data: nueva,
+        mensaje: "reserva creada correctamente",
+        data: nuevaReserva,
       });
     } catch (error) {
-      console.error("❌ Error al crear reserva:", error.message);
+      console.error("error al crear reserva:", error.message);
       res.status(500).json({
         ok: false,
-        mensaje: "Error interno del servidor al crear la reserva",
+        mensaje: "error interno del servidor al crear la reserva",
         error: error.message,
       });
     }
   };
 
-  // Listar todas las reservas
+  // listar todas las reservas
   buscarTodos = async (req, res) => {
     try {
       const reservas = await this.reservasService.buscarTodos();
       res.json({ ok: true, data: reservas });
     } catch (error) {
+      console.error("error al listar reservas:", error.message);
       res.status(500).json({
         ok: false,
-        mensaje: "Error al obtener las reservas",
+        mensaje: "rrror al mostrar las reservas",
         error: error.message,
       });
     }
   };
 
-  // Buscar por ID
+  // Busca una reserva por Id
   buscarPorId = async (req, res) => {
     try {
-      const id = req.params.id;
+      const { id } = req.params;
       const reserva = await this.reservasService.buscarPorId(id);
 
-      if (!reserva) return res.status(404).json({ ok: false, mensaje: "Reserva no encontrada" });
+      if (!reserva)
+        return res.status(404).json({ ok: false, mensaje: "reserva no encontrada" });
+
       res.json({ ok: true, data: reserva });
     } catch (error) {
+      console.error("error al buscar reserva:", error.message);
       res.status(500).json({
         ok: false,
-        mensaje: "Error al buscar la reserva",
+        mensaje: "error al buscar la reserva",
         error: error.message,
       });
     }
   };
 
-  // Actualizar reserva
+  // actualizar reserva si exist
   actualizar = async (req, res) => {
     try {
-      const id = req.params.id;
+      const { id } = req.params;
       const datos = req.body;
-      const actualizada = await this.reservasService.actualizar(id, datos);
 
-      if (!actualizada) return res.status(404).json({ ok: false, mensaje: "Reserva no encontrada" });
-      res.json({ ok: true, mensaje: "Reserva actualizada correctamente", data: actualizada });
+      const actualizada = await this.reservasService.actualizar(id, datos);
+      if (!actualizada)
+        return res.status(404).json({ ok: false, mensaje: "Reserva no encontrada" });
+
+      res.json({
+        ok: true,
+        mensaje: "Reserva actualizada correctamente",
+        data: actualizada,
+      });
     } catch (error) {
+      console.error("error al actualizar reserva:", error.message);
       res.status(500).json({
         ok: false,
-        mensaje: "Error al actualizar la reserva",
+        mensaje: "error al actualizar la reserva",
         error: error.message,
       });
     }
   };
 
-  // Eliminar reserva
+  // elimina reserva
   eliminar = async (req, res) => {
     try {
-      const id = req.params.id;
+      const { id } = req.params;
       const eliminado = await this.reservasService.eliminar(id);
 
-      if (!eliminado) return res.status(404).json({ ok: false, mensaje: "Reserva no encontrada" });
-      res.json({ ok: true, mensaje: "Reserva eliminada correctamente" });
+      if (!eliminado)
+        return res.status(404).json({ ok: false, mensaje: "reserva no encontrada" });
+
+      res.json({ ok: true, mensaje: "reserva eliminada" });
     } catch (error) {
+      console.error("error eliminar reserva:", error.message);
       res.status(500).json({
         ok: false,
-        mensaje: "Error al eliminar la reserva",
+        mensaje: "error al eliminar la reserva",
         error: error.message,
       });
     }
   };
 }
+
