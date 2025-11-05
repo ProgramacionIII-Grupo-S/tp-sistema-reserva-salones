@@ -47,9 +47,6 @@ JWT_EXPIRES_IN=1h
 CORREO=tuemail@gmail.com
 CLAVE=abcd efgh ijkl mnop   # la clave de 16 caracteres sin espacios
 
-
-
-
 ## ⚙️ Scripts Disponibles
 ```bash
 npm i              # Instalar dependencias
@@ -83,3 +80,8 @@ npm run db:procedures
 
 Cuando Swagger esté configurado, la documentación será accesible en:
 👉 http://localhost:3000/api-docs
+
+
+## Extra
+Se realizo el panel administrativo de reportes y estadisticas
+👉 http://localhost:3000/dashboard.html

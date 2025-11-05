@@ -1,12 +1,11 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import User from '../models/User.js';
+import User from '../db/User.js';
 import { USER_TYPES, USER_TYPE_NAMES, isValidUserType } from '../utils/constants/userTypes.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'clave_secreta_super_segura';
 const JWT_EXPIRES_IN = '1h';
 
-// Registro de usuario
 export const register = async (req, res) => {
   try {
     const { nombre, apellido, nombre_usuario, contrasenia, tipo_usuario, celular } = req.body;
@@ -46,7 +45,6 @@ export const register = async (req, res) => {
   }
 };
 
-// Inicio de sesión
 export const login = async (req, res) => {
   try {
     const { nombre_usuario, contrasenia } = req.body;
@@ -92,7 +90,6 @@ export const login = async (req, res) => {
   }
 };
 
-// Verificación de token
 export const verify = async (req, res) => {
   try {
     const { user } = req;
@@ -118,6 +115,7 @@ export const verify = async (req, res) => {
     res.status(500).json({ message: 'Error al verificar token' });
   }
 };
+
 
 
 
