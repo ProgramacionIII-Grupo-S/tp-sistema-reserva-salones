@@ -1,4 +1,7 @@
 import UserService from '../services/UserService.js';
+import upload from '../config/multerConfig.js';
+
+export const uploadAvatar = upload.single('avatar');
 
 export const getUsers = async (req, res) => {
   try {
@@ -33,9 +36,34 @@ export const createUser = async (req, res) => {
 
 export const updateUser = async (req, res) => {
   try {
-    await UserService.updateUser(req.params.id, req.body);
-    res.status(200).json({ message: 'Usuario actualizado correctamente' });
+    const { id } = req.params;
+    
+    // Verificar permisos (solo puede modificar su propio perfil o ser admin)
+    if (req.user.tipo_usuario !== 1 && req.user.usuario_id !== Number(id)) {
+      return res.status(403).json({ 
+        message: 'Solo puedes modificar tu propio perfil' 
+      });
+    }
+
+    // Preparar datos para actualizar
+    const updateData = { ...req.body };
+
+    // Si hay archivo subido, agregar la ruta de la foto
+    if (req.file) {
+      updateData.foto = `/uploads/${req.file.filename}`;
+    }
+
+    await UserService.updateUser(id, updateData);
+    
+    // Obtener usuario actualizado para la respuesta
+    const updatedUser = await UserService.getUserById(id);
+    
+    res.status(200).json({ 
+      message: 'Usuario actualizado correctamente',
+      user: updatedUser
+    });
   } catch (error) {
+    console.error('Error en updateUser:', error);
     res.status(400).json({ message: error.message });
   }
 };
