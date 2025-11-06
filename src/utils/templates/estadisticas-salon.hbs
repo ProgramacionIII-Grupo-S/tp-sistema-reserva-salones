@@ -55,6 +55,11 @@
             font-weight: bold;
             background-color: #e9ecef !important;
         }
+        .detalle-reserva {
+            font-size: 9px;
+            color: #666;
+            background-color: #f8f9fa;
+        }
     </style>
 </head>
 <body>
@@ -69,6 +74,7 @@
         <strong>Ingresos Totales:</strong> ${{ingresos_totales}}
     </div>
 
+    {{#if datos.length}}
     <table class="tabla">
         <thead>
             <tr>
@@ -80,14 +86,33 @@
         </thead>
         <tbody>
             {{#each datos}}
-            <tr>
-                <td>{{salon}}</td>
-                <td>{{total_reservas}}</td>
-                <td>${{ingresos_salon}}</td>
-                <td>${{promedio_por_reserva}}</td>
-            </tr>
+                <tr>
+                    <td><strong>{{this.salon}}</strong></td>
+                    <td>{{this.total_reservas}}</td>
+                    <td>${{this.ingresos_salon}}</td>
+                    <td>${{this.promedio_por_reserva}}</td>
+                </tr>
+                
+                {{! Si necesitas mostrar detalles de reservas, necesitarías pasar esos datos }}
+                {{! Por ahora comentamos esta sección hasta que tengas los datos }}
+                {{!--
+                {{#if this.reservas_detalle}}
+                    {{#each this.reservas_detalle}}
+                    <tr class="detalle-reserva">
+                        <td colspan="4" style="padding-left: 20px;">
+                            📅 Reserva #{{reserva_id}} | 👤 {{cliente}} | ⏰ {{hora_desde}}-{{hora_hasta}} | 💰 ${{importe_total}}
+                        </td>
+                    </tr>
+                    {{/each}}
+                {{/if}}
+                --}}
             {{/each}}
         </tbody>
     </table>
+    {{else}}
+    <div style="text-align: center; color: #666; font-style: italic; padding: 20px;">
+        No hay datos de estadísticas por salón para mostrar
+    </div>
+    {{/if}}
 </body>
 </html>

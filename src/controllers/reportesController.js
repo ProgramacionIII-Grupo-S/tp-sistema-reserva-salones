@@ -1,110 +1,98 @@
-import ReporteModel from '../models/Report.js';
-import InformeService from '../services/InformeService.js';
 import fs from 'fs';
+import ReporteService from '../services/ReporteService.js';
+import InformeService from '../services/InformeService.js';
+import ReporteDB from '../db/Reportes.js'; //
 
 const informeService = new InformeService();
 
-// Helper para nombres de mes
-const obtenerNombreMes = (mesNumero) => {
-  const meses = [
-    'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-    'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
-  ];
-  return meses[mesNumero - 1] || 'Desconocido';
-};
-
-// Estadísticas: Total reservas por mes
 export const getReservasPorMes = async (req, res) => {
   try {
     const { anio = new Date().getFullYear() } = req.query;
-    
-    const datos = await ReporteModel.totalReservasPorMes(anio);
-    
-    // Formatear datos con nombres de mes
-    const datosFormateados = datos.map(item => ({
-      ...item,
-      mes_nombre: obtenerNombreMes(item.mes)
-    }));
-    
-    res.json({
-      anio: parseInt(anio),
-      datos: datosFormateados,
-      total_reservas: datos.reduce((sum, item) => sum + item.total_reservas, 0),
-      ingresos_totales: datos.reduce((sum, item) => sum + (parseFloat(item.ingresos_totales) || 0), 0).toFixed(2)
-    });
+    const resultado = await ReporteService.getReservasPorMes(anio);
+    res.status(200).json(resultado);
   } catch (error) {
     console.error('Error en getReservasPorMes:', error);
-    res.status(500).json({ error: 'Error al obtener estadísticas' });
+    res.status(500).json({ error: 'Error al obtener las reservas por mes' });
   }
 };
 
-// Estadísticas: Total ingresos por período
 export const getIngresosPeriodo = async (req, res) => {
   try {
     const { fecha_desde, fecha_hasta } = req.query;
-    
+
     if (!fecha_desde || !fecha_hasta) {
-      return res.status(400).json({ error: 'fecha_desde y fecha_hasta son requeridos' });
+      return res.status(400).json({ error: 'Los parámetros fecha_desde y fecha_hasta son requeridos' });
     }
-    
-    const datos = await ReporteModel.totalIngresosPeriodo(fecha_desde, fecha_hasta);
-    
-    res.json({
-      periodo: { fecha_desde, fecha_hasta },
-      ...datos
-    });
+
+    const resultado = await ReporteService.getIngresosPeriodo(fecha_desde, fecha_hasta);
+    res.status(200).json(resultado);
   } catch (error) {
     console.error('Error en getIngresosPeriodo:', error);
-    res.status(500).json({ error: 'Error al obtener ingresos' });
+    res.status(500).json({ error: 'Error al obtener ingresos en el período' });
   }
 };
 
-// Reservas por salón
 export const getReservasPorSalon = async (req, res) => {
   try {
     const { salon_id } = req.query;
-    const datos = await ReporteModel.reservasPorSalon(salon_id || null);
-    
-    res.json({
-      datos,
-      total_salones: datos.length,
-      total_reservas: datos.reduce((sum, item) => sum + item.total_reservas, 0),
-      ingresos_totales: datos.reduce((sum, item) => sum + (parseFloat(item.ingresos_salon) || 0), 0).toFixed(2)
-    });
+    const resultado = await ReporteService.getReservasPorSalon(salon_id);
+    res.status(200).json(resultado);
   } catch (error) {
     console.error('Error en getReservasPorSalon:', error);
     res.status(500).json({ error: 'Error al obtener reservas por salón' });
   }
 };
 
-// Reservas por cliente
 export const getReservasPorCliente = async (req, res) => {
   try {
     const { cliente_id } = req.query;
-    const datos = await ReporteModel.reservasPorCliente(cliente_id || null);
-    
-    res.json({
-      datos,
-      total_clientes: datos.length,
-      total_reservas: datos.reduce((sum, item) => sum + item.total_reservas, 0),
-      ingresos_totales: datos.reduce((sum, item) => sum + (parseFloat(item.total_gastado) || 0), 0).toFixed(2)
-    });
+    const resultado = await ReporteService.getReservasPorCliente(cliente_id);
+    res.status(200).json(resultado);
   } catch (error) {
     console.error('Error en getReservasPorCliente:', error);
     res.status(500).json({ error: 'Error al obtener reservas por cliente' });
   }
 };
 
-// Generar PDF de reservas
+export const getEstadisticasGenerales = async (req, res) => {
+  try {
+    const resultado = await ReporteService.getEstadisticasGenerales();
+    res.status(200).json(resultado);
+  } catch (error) {
+    console.error('Error en getEstadisticasGenerales:', error);
+    res.status(500).json({ error: 'Error al obtener estadísticas generales' });
+  }
+};
+
+export const getListaEmpleados = async (req, res) => {
+  try {
+    const resultado = await ReporteService.getListaEmpleados();
+    res.status(200).json(resultado);
+  } catch (error) {
+    console.error('Error en getListaEmpleados:', error);
+    res.status(500).json({ error: 'Error al obtener lista de empleados' });
+  }
+};
+
+export const getServiciosPopulares = async (req, res) => {
+  try {
+    const resultado = await ReporteService.getServiciosPopulares();
+    res.status(200).json(resultado);
+  } catch (error) {
+    console.error('Error en getServiciosPopulares:', error);
+    res.status(500).json({ error: 'Error al obtener servicios populares' });
+  }
+};
+
 export const generarReportePDF = async (req, res) => {
   try {
-    const { fecha_desde, fecha_hasta, titulo = 'Reporte de Reservas' } = req.query;
-    
+    const { fecha_desde, fecha_hasta, titulo = 'Reporte de Reservas' } = req.query; 
+
     if (!fecha_desde || !fecha_hasta) {
       return res.status(400).json({ error: 'fecha_desde y fecha_hasta son requeridos' });
     }
-    
-    const reservas = await ReporteModel.detalleReservasCompleto(fecha_desde, fecha_hasta);
+
+    const reservas = await ReporteDB.detalleReservasCompleto(fecha_desde, fecha_hasta);
     
     if (reservas.length === 0) {
       return res.status(404).json({ error: 'No hay reservas en el período seleccionado' });
@@ -126,28 +114,30 @@ export const generarReportePDF = async (req, res) => {
   }
 };
 
-// Generar CSV de reservas
 export const generarReporteCSV = async (req, res) => {
   try {
-    const { fecha_desde, fecha_hasta } = req.query;
-    
+    const { fecha_desde, fecha_hasta } = req.query; 
+
     if (!fecha_desde || !fecha_hasta) {
       return res.status(400).json({ error: 'fecha_desde y fecha_hasta son requeridos' });
     }
-    
-    const reservas = await ReporteModel.detalleReservasCompleto(fecha_desde, fecha_hasta);
+
+    const reservas = await ReporteDB.detalleReservasCompleto(fecha_desde, fecha_hasta);
     
     if (reservas.length === 0) {
       return res.status(404).json({ error: 'No hay reservas en el período seleccionado' });
     }
-    
+
     const csvPath = await informeService.generarReservasCSV(reservas);
     
-    res.download(csvPath, `reporte-reservas-${fecha_desde}-a-${fecha_hasta}.csv`, (err) => {
-      if (err) {
-        console.error('Error descargando CSV:', err);
-      }
-      // Limpiar archivo temporal después de descargar
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader('Content-Disposition', 
+        `attachment; filename="reporte-reservas-${fecha_desde}-a-${fecha_hasta}.csv"`);
+    
+    const fileStream = fs.createReadStream(csvPath);
+    fileStream.pipe(res);
+    
+    fileStream.on('end', () => {
       try {
         fs.unlinkSync(csvPath);
       } catch (unlinkError) {
@@ -157,29 +147,27 @@ export const generarReporteCSV = async (req, res) => {
     
   } catch (error) {
     console.error('Error en generarReporteCSV:', error);
-    res.status(500).json({ error: 'Error al generar reporte CSV' });
+    res.status(500).json({ error: 'Error al generar reporte CSV: ' + error.message });
   }
 };
 
-// Generar PDF de estadísticas mensuales
 export const generarEstadisticasMensualPDF = async (req, res) => {
   try {
     const { anio = new Date().getFullYear() } = req.query;
-    
-    const datos = await ReporteModel.totalReservasPorMes(anio);
+
+    const resultado = await ReporteService.getReservasPorMes(anio);
     
     const estadisticas = {
       anio: parseInt(anio),
-      datos: datos.map(item => ({
-        mes: obtenerNombreMes(item.mes),
+      datos: resultado.datos.map(item => ({
+        mes: item.mes_nombre,
         total_reservas: item.total_reservas,
         ingresos_totales: parseFloat(item.ingresos_totales || 0).toFixed(2),
         promedio: (parseFloat(item.ingresos_totales || 0) / item.total_reservas).toFixed(2)
       })),
-      total_reservas: datos.reduce((sum, item) => sum + item.total_reservas, 0),
-      ingresos_totales: datos.reduce((sum, item) => sum + (parseFloat(item.ingresos_totales) || 0), 0).toFixed(2),
-      promedio_general: (datos.reduce((sum, item) => sum + (parseFloat(item.ingresos_totales) || 0), 0) / 
-                        datos.reduce((sum, item) => sum + item.total_reservas, 1)).toFixed(2)
+      total_reservas: resultado.total_reservas,
+      ingresos_totales: resultado.ingresos_totales,
+      promedio_general: (parseFloat(resultado.ingresos_totales) / resultado.total_reservas).toFixed(2)
     };
     
     const pdfBuffer = await informeService.generarEstadisticasMensualPDF(estadisticas);
@@ -194,22 +182,22 @@ export const generarEstadisticasMensualPDF = async (req, res) => {
   }
 };
 
-// Generar PDF de estadísticas por salón
 export const generarEstadisticasSalonPDF = async (req, res) => {
   try {
     const { salon_id } = req.query;
-    const datos = await ReporteModel.reservasPorSalon(salon_id || null);
+    
+    const resultado = await ReporteService.getReservasPorSalon(salon_id);
     
     const estadisticas = {
-      datos: datos.map(item => ({
+      datos: resultado.datos.map(item => ({
         salon: item.salon,
         total_reservas: item.total_reservas,
         ingresos_salon: parseFloat(item.ingresos_salon || 0).toFixed(2),
         promedio_por_reserva: parseFloat(item.promedio_por_reserva || 0).toFixed(2)
       })),
-      total_salones: datos.length,
-      total_reservas: datos.reduce((sum, item) => sum + item.total_reservas, 0),
-      ingresos_totales: datos.reduce((sum, item) => sum + (parseFloat(item.ingresos_salon) || 0), 0).toFixed(2)
+      total_salones: resultado.total_salones,
+      total_reservas: resultado.total_reservas,
+      ingresos_totales: resultado.ingresos_totales
     };
     
     const pdfBuffer = await informeService.generarEstadisticasSalonPDF(estadisticas);

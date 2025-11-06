@@ -7,8 +7,11 @@ import {
   generarReportePDF,
   generarReporteCSV,
   generarEstadisticasMensualPDF,
-  generarEstadisticasSalonPDF
-} from '../controllers/reportController.js';
+  generarEstadisticasSalonPDF,
+  getEstadisticasGenerales,
+  getListaEmpleados,
+  getServiciosPopulares 
+} from '../controllers/reportesController.js';
 import { authenticateToken, requireAdmin } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
@@ -115,6 +118,119 @@ router.get('/reservas-por-salon', authenticateToken, requireAdmin, getReservasPo
  *         description: Datos de reservas por cliente
  */
 router.get('/reservas-por-cliente', authenticateToken, requireAdmin, getReservasPorCliente);
+
+/**
+ * @swagger
+ * /reportes/estadisticas-generales:
+ *   get:
+ *     summary: Obtener estadísticas generales del sistema
+ *     tags: [Reportes]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Estadísticas generales del sistema
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 total_servicios:
+ *                   type: integer
+ *                   description: Total de servicios activos
+ *                 total_empleados:
+ *                   type: integer
+ *                   description: Total de empleados activos
+ *                 total_clientes:
+ *                   type: integer
+ *                   description: Total de clientes registrados
+ *                 total_salones:
+ *                   type: integer
+ *                   description: Total de salones activos
+ *                 ingresos_mes_actual:
+ *                   type: number
+ *                   format: float
+ *                   description: Ingresos del mes actual
+ */
+router.get('/estadisticas-generales', authenticateToken, requireAdmin, getEstadisticasGenerales);
+
+/**
+ * @swagger
+ * /reportes/lista-empleados:
+ *   get:
+ *     summary: Obtener lista completa de empleados
+ *     tags: [Reportes]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Lista de empleados
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   usuario_id:
+ *                     type: integer
+ *                     description: ID del usuario
+ *                   nombre:
+ *                     type: string
+ *                     description: Nombre del empleado
+ *                   apellido:
+ *                     type: string
+ *                     description: Apellido del empleado
+ *                   nombre_usuario:
+ *                     type: string
+ *                     description: Nombre de usuario/email
+ *                   celular:
+ *                     type: string
+ *                     description: Número de celular
+ *                   creado:
+ *                     type: string
+ *                     format: date-time
+ *                     description: Fecha de creación
+ */
+router.get('/lista-empleados', authenticateToken, requireAdmin, getListaEmpleados);
+
+/**
+ * @swagger
+ * /reportes/servicios-populares:
+ *   get:
+ *     summary: Obtener servicios más populares
+ *     tags: [Reportes]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Lista de servicios ordenados por popularidad
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   servicio_id:
+ *                     type: integer
+ *                     description: ID del servicio
+ *                   descripcion:
+ *                     type: string
+ *                     description: Descripción del servicio
+ *                   importe:
+ *                     type: number
+ *                     format: float
+ *                     description: Precio del servicio
+ *                   total_contrataciones:
+ *                     type: integer
+ *                     description: Total de veces contratado
+ *                   ingresos_totales:
+ *                     type: number
+ *                     format: float
+ *                     description: Ingresos totales generados
+ */
+router.get('/servicios-populares', authenticateToken, requireAdmin, getServiciosPopulares);
 
 /**
  * @swagger

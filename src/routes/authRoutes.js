@@ -39,6 +39,18 @@ const router = express.Router();
  *                 type: string
  *               contrasenia:
  *                 type: string
+ *               celular:
+ *                 type: string
+ *                 example: "3516784321"
+ *               tipo_usuario:
+ *                 type: integer
+ *                 enum: [1, 2, 3]
+ *                 description: |
+ *                   Tipo de usuario que se registra:
+ *                   - 1 = Administrador
+ *                   - 2 = Recepcionista
+ *                   - 3 = Cliente (por defecto si no se envía)
+ *                 example: 3
  *     responses:
  *       201:
  *         description: Usuario registrado con éxito
@@ -53,6 +65,7 @@ router.post('/register', registerValidator, handleValidationErrors, register);
  *   post:
  *     summary: Iniciar sesión
  *     tags: [Auth]
+ *     description: Permite que un usuario existente inicie sesión y reciba un token JWT.
  *     requestBody:
  *       required: true
  *       content:
@@ -81,6 +94,7 @@ router.post('/login', loginValidator, handleValidationErrors, login);
  *   get:
  *     summary: Verificar token JWT
  *     tags: [Auth]
+ *     description: Verifica que el token JWT sea válido y devuelve los datos del usuario autenticado.
  *     security:
  *       - bearerAuth: []
  *     responses:
