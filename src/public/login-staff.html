@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sistema de Reservas - Login</title>
+    <link rel="stylesheet" href="./css/loginstaff.css" />
+  </head>
+  <body>
+    <div class="login-container">
+        <section class="login-box">
+            <div class="title-container"> 
+                <h2>Iniciar Sesión</h2>
+                <h3>Acceso Staff - Administradores y Empleados</h3>
+            </div>
+            
+            <div class="login-info">
+                <strong>🔐 Acceso Restringido</strong>
+                <p>Solo personal autorizado del sistema de reservas</p>
+            </div>
+
+            <form id="loginForm">
+               <div class="form-group">
+                    <label for="email">Usuario:</label>
+                    <input type="text" id="email" placeholder="Ingresa tu usuario" required>
+               </div>
+               <div class="form-group">
+                    <label for="password">Contraseña:</label>
+                    <input type="password" id="password" placeholder="********" required>
+                </div>
+                <button type="submit">Ingresar al Sistema</button>
+                <div id="errorMsg" class="error" style="display:none;"></div>
+            </form>
+
+            <div class="access-links">
+                <p>¿Eres cliente? <a href="/loginUsuario.html">Accede desde aquí</a></p>
+            </div>
+        </section>
+    </div>
+  <script src="./js/loginStaff.js"></script>
+</body>
+</html>

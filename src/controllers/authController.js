@@ -45,6 +45,46 @@ export const register = async (req, res) => {
   }
 };
 
+export const registerClient = async (req, res) => {
+  try {
+    const { nombre, apellido, nombre_usuario, contrasenia, celular } = req.body;
+
+    if (!nombre || !apellido || !nombre_usuario || !contrasenia) {
+      return res.status(400).json({ 
+        message: 'Faltan campos obligatorios: nombre, apellido, email y contraseña' 
+      });
+    }
+
+    const exists = await User.usernameExists(nombre_usuario);
+    if (exists) {
+      return res.status(400).json({ 
+        message: 'El email ya está registrado. ¿Ya tienes una cuenta?' 
+      });
+    }
+
+    const hashedPassword = await bcrypt.hash(contrasenia, 10);
+
+    const userId = await User.create({
+      nombre,
+      apellido,
+      nombre_usuario,
+      contrasenia: hashedPassword,
+      tipo_usuario: USER_TYPES.CLIENTE,
+      celular: celular || null,
+    });
+
+    return res.status(201).json({
+      message: '¡Te has registrado exitosamente! Ya puedes iniciar sesión.',
+      user_id: userId,
+    });
+  } catch (error) {
+    console.error('Error en registerClient:', error);
+    res.status(500).json({ 
+      message: 'Error al registrar usuario. Por favor, intenta nuevamente.' 
+    });
+  }
+};
+
 export const login = async (req, res) => {
   try {
     const { nombre_usuario, contrasenia } = req.body;

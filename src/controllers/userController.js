@@ -38,24 +38,20 @@ export const updateUser = async (req, res) => {
   try {
     const { id } = req.params;
     
-    // Verificar permisos (solo puede modificar su propio perfil o ser admin)
     if (req.user.tipo_usuario !== 1 && req.user.usuario_id !== Number(id)) {
       return res.status(403).json({ 
         message: 'Solo puedes modificar tu propio perfil' 
       });
     }
 
-    // Preparar datos para actualizar
     const updateData = { ...req.body };
 
-    // Si hay archivo subido, agregar la ruta de la foto
     if (req.file) {
-      updateData.foto = `/uploads/${req.file.filename}`;
+      updateData.foto = `/avatars/${req.file.filename}`;
     }
 
     await UserService.updateUser(id, updateData);
     
-    // Obtener usuario actualizado para la respuesta
     const updatedUser = await UserService.getUserById(id);
     
     res.status(200).json({ 

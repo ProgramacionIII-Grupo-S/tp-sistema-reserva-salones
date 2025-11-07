@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mi Perfil - Salones para Fiestas</title>
+    <link rel="stylesheet" href="/css/perfil-usuario.css" />
+  </head>
+  <body>
+    <header class="main-header">
+      <h1>Salones para tus fiestas</h1>
+      <nav id="main-nav">
+        <a href="/paginaPrincipal.html">Inicio</a>
+        <a href="/reservar.html" id="mis-reservas-link">Reservar</a>
+        <a href="/perfil-usuario.html" id="perfil-link">Mi Perfil</a>
+        <a href="#" id="logout-link">Cerrar sesión</a>
+        <span id="user-welcome"></span>
+      </nav>
+    </header>
+    <main class="perfil-container">
+      <section class="perfil-header">
+        <h2>Mi Perfil</h2>
+        <p>Gestiona tu información personal y foto de perfil</p>
+      </section>
+
+      <div class="perfil-content">
+        <section class="foto-section">
+          <div class="foto-container">
+            <div class="foto-preview">
+              <img id="avatar-preview" src="" alt="Foto de perfil" />
+              <div id="sin-foto" class="sin-foto">
+                <span>👤</span>
+                <p>Sin foto</p>
+              </div>
+            </div>
+            <div class="foto-actions">
+              <input
+                type="file"
+                id="avatar-input"
+                accept="image/*"
+                style="display: none"
+              />
+              <button
+                type="button"
+                id="btn-cambiar-foto"
+                class="btn-secundario"
+              >
+                Cambiar Foto
+              </button>
+              <button
+                type="button"
+                id="btn-eliminar-foto"
+                class="btn-eliminar"
+                style="display: none"
+              >
+                Eliminar Foto
+              </button>
+              <p class="foto-info">Formatos: JPG, PNG, GIF (Máx. 5MB)</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="form-section">
+          <form id="form-perfil" class="form-perfil">
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="nombre">Nombre *</label>
+                <input type="text" id="nombre" name="nombre" required />
+                <span class="error-message" id="error-nombre"></span>
+              </div>
+
+              <div class="form-group">
+                <label for="apellido">Apellido *</label>
+                <input type="text" id="apellido" name="apellido" required />
+                <span class="error-message" id="error-apellido"></span>
+              </div>
+
+              <div class="form-group">
+                <label for="usuario">Email (Usuario) *</label>
+                <input
+                  type="email"
+                  id="usuario"
+                  name="nombre_usuario"
+                  required
+                />
+                <span class="error-message" id="error-usuario"></span>
+              </div>
+
+              <div class="form-group">
+                <label for="celular">Celular</label>
+                <input type="tel" id="celular" name="celular" />
+                <span class="error-message" id="error-celular"></span>
+              </div>
+            </div>
+
+            <div class="password-section">
+              <h3>Cambiar Contraseña</h3>
+              <p class="section-info">
+                Deja en blanco si no deseas cambiar la contraseña
+              </p>
+
+              <div class="form-grid">
+                <div class="form-group">
+                  <label for="contrasenia_actual">Contraseña Actual</label>
+                  <input
+                    type="password"
+                    id="contrasenia_actual"
+                    name="contrasenia_actual"
+                  />
+                  <span
+                    class="error-message"
+                    id="error-contrasenia_actual"
+                  ></span>
+                </div>
+
+                <div class="form-group">
+                  <label for="nueva_contrasenia">Nueva Contraseña</label>
+                  <input
+                    type="password"
+                    id="nueva_contrasenia"
+                    name="nueva_contrasenia"
+                  />
+                  <span
+                    class="error-message"
+                    id="error-nueva_contrasenia"
+                  ></span>
+                </div>
+
+                <div class="form-group">
+                  <label for="confirmar_contrasenia"
+                    >Confirmar Contraseña</label
+                  >
+                  <input
+                    type="password"
+                    id="confirmar_contrasenia"
+                    name="confirmar_contrasenia"
+                  />
+                  <span
+                    class="error-message"
+                    id="error-confirmar_contrasenia"
+                  ></span>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" id="btn-guardar" class="btn-primario">
+                <span id="btn-text">Guardar Cambios</span>
+                <div
+                  id="btn-loading"
+                  class="loading-spinner"
+                  style="display: none"
+                ></div>
+              </button>
+              <button type="button" id="btn-cancelar" class="btn-secundario">
+                Cancelar
+              </button>
+            </div>
+          </form>
+        </section>
+      </div>
+
+      <div id="modal-confirmacion" class="modal" style="display: none">
+        <div class="modal-content">
+          <h3>✅ Cambios Guardados</h3>
+          <p>Tu perfil se ha actualizado correctamente.</p>
+          <div class="modal-actions">
+            <button id="btn-cerrar-modal" class="btn-primario">Aceptar</button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      <p>Grupo S 2025 - Todos los derechos reservados</p>
+    </footer>
+
+    <script src="/js/perfil-usuario.js"></script>
+  </body>
+</html>
