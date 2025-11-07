@@ -1,84 +1,88 @@
-import pool from "../config/db.js";
+import Reservas from "../db/Reservas.js";
 
 export default class ReservasService {
-  // crea una nueva reserva
-  async crear({ usuario_id, salon_id, turno_id, fecha_reserva, importe_salon = 0, importe_total = 0 }) {
-    try {
-      const sql = `
-        INSERT INTO reservas (usuario_id, salon_id, turno_id, fecha_reserva, importe_salon, importe_total, creado)
-        VALUES (?, ?, ?, ?, ?, ?, NOW())
-      `;
+  constructor() {
+    this.reservasModel = new Reservas();
+  }
 
-      const [result] = await pool.query(sql, [
-        usuario_id,
-        salon_id,
-        turno_id,
-        fecha_reserva,
-        importe_salon,
-        importe_total,
-      ]);
-
-      // Retorna la reserva recién creada
-      return await this.buscarPorId(result.insertId);
-    } catch (error) {
-      console.error("error en ReservasService.crear:", error.message);
-      throw error;
+  async crear(data) {
+    if (
+      !data.usuario_id ||
+      !data.salon_id ||
+      !data.turno_id ||
+      !data.fecha_reserva
+    ) {
+      throw new Error("Faltan datos obligatorios para crear la reserva");
     }
+
+    if (!Array.isArray(data.servicios)) {
+      data.servicios = [];
+    }
+
+    return await this.reservasModel.crear(data);
   }
 
-  // obtiene todas las reservas
   async buscarTodos() {
-    const sql = `
-      SELECT 
-        r.*, 
-        s.titulo AS salon, 
-        CONCAT(t.hora_desde, ' a ', t.hora_hasta) AS turno, 
-        u.nombre AS usuario
-      FROM reservas r
-      JOIN salones s ON r.salon_id = s.salon_id
-      JOIN turnos t ON r.turno_id = t.turno_id
-      JOIN usuarios u ON r.usuario_id = u.usuario_id
-      ORDER BY r.fecha_reserva DESC
-    `;
-    const [rows] = await pool.query(sql);
-    return rows;
+    return await this.reservasModel.buscarTodos();
   }
 
-  // buscar una reserva por ID 
+  async buscarPorUsuario(usuario_id) {
+    if (!usuario_id) {
+      throw new Error("ID de usuario requerido");
+    }
+    return await this.reservasModel.buscarPorUsuario(usuario_id);
+  }
+
   async buscarPorId(id) {
-    const [reserva] = await pool.query(`SELECT * FROM reservas WHERE reserva_id = ?`, [id]);
-    if (!reserva.length) return null;
+    if (!id) {
+      throw new Error("ID de reserva requerido");
+    }
 
-    // trae servicios asociados a la reserva
-    const [servicios] = await pool.query(
-      `
-      SELECT s.descripcion, rs.importe
-      FROM reservas_servicios rs
-      JOIN servicios s ON rs.servicio_id = s.servicio_id
-      WHERE rs.reserva_id = ?
-      `,
-      [id]
-    );
-
-    reserva[0].servicios = servicios;
-    return reserva[0];
+    const reserva = await this.reservasModel.buscarPorId(id);
+    if (!reserva) throw new Error("Reserva no encontrada");
+    return reserva;
   }
 
-  // actualiza 1 reserva existente
-  async actualizar(id, { fecha_reserva, salon_id, turno_id }) {
-    const sql = `
-      UPDATE reservas 
-      SET fecha_reserva = ?, salon_id = ?, turno_id = ?, modificado = NOW() 
-      WHERE reserva_id = ?
-    `;
-    const [result] = await pool.query(sql, [fecha_reserva, salon_id, turno_id, id]);
+   async actualizar(id, datos) {
+    if (!id) {
+      throw new Error("ID de reserva requerido");
+    }
 
-    return result.affectedRows > 0 ? await this.buscarPorId(id) : null;
+    const reservaExistente = await this.reservasModel.buscarPorId(id);
+    if (!reservaExistente) throw new Error("Reserva no encontrada");
+
+    const camposNoEditables = ["reserva_id", "creado"];
+    camposNoEditables.forEach((campo) => delete datos[campo]);
+
+    const updated = await this.reservasModel.actualizar(id, datos);
+    if (!updated) throw new Error("No se realizaron cambios en la reserva");
+
+    return updated;
   }
 
-  // aliminar una reserva
   async eliminar(id) {
-    const [result] = await pool.query(`DELETE FROM reservas WHERE reserva_id = ?`, [id]);
-    return result.affectedRows > 0;
+    if (!id) {
+      throw new Error("ID de reserva requerido");
+    }
+
+    const reservaExistente = await this.reservasModel.buscarPorId(id);
+    if (!reservaExistente) throw new Error("Reserva no encontrada");
+
+    const eliminada = await this.reservasModel.eliminar(id);
+    if (!eliminada) throw new Error("No se pudo eliminar la reserva");
+
+    return true;
+  }
+
+  // Método opcional para restaurar
+  async restaurar(id) {
+    if (!id) {
+      throw new Error("ID de reserva requerido");
+    }
+
+    const restaurada = await this.reservasModel.restaurar(id);
+    if (!restaurada) throw new Error("No se pudo restaurar la reserva");
+
+    return true;
   }
 }
