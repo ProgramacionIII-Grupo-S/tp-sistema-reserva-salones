@@ -2,17 +2,23 @@ document.addEventListener("DOMContentLoaded", async () => {
   const contenedor = document.getElementById("lista-salones");
 
   try {
-    const respuesta = await fetch("/api/salones");
+    const token = localStorage.getItem("token"); // obtenemos el token guardado
+
+    // agregamos el encabezado Authorization si hay token
+    const respuesta = await fetch("/api/salones", {
+      headers: token ? { Authorization: `Bearer ${token}` } : {}
+    });
+
     if (!respuesta.ok) throw new Error("Error al obtener los salones");
 
     const salonesJSON = await respuesta.json();
 
-    if (!salonesJSON.estado || salonesJSON.datos.length === 0) {
+    if (!salonesJSON.ok || salonesJSON.data.length === 0) {
       contenedor.innerHTML = "<p>No hay salones disponibles en este momento 👻</p>";
       return;
     }
 
-    const salones = salonesJSON.datos;
+    const salones = salonesJSON.data;
 
     salones.forEach((salon) => {
       const card = document.createElement("div");
@@ -47,6 +53,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   } catch (error) {
     console.error("Error fetch:", error);
-    contenedor.innerHTML = "<p>Ocurrió un error al cargar los salones </p>";
+    contenedor.innerHTML = "<p>Ocurrio un error al cargar los salones </p>";
   }
 });
