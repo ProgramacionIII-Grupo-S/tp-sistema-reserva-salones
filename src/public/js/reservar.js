@@ -7,6 +7,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const turnoSelect = document.getElementById("turno");
   const serviciosContainer = document.getElementById("servicios-container");
   const resumenReserva = document.getElementById("resumen-reserva"); 
+  const inputTematica = document.getElementById("tematica"); // nuevo campo temática
 
   let salon = null;
   let turnos = [];
@@ -17,12 +18,18 @@ document.addEventListener("DOMContentLoaded", async () => {
     return;
   }
 
+  // Cargar información del salón
   try {
-    const respSalon = await fetch(`/api/salones/${salonId}`);
+    const respSalon = await fetch(`/api/salones/${salonId}`, {
+      headers: {
+        "Authorization": `Bearer ${token}`
+      }
+    });
+
     if (!respSalon.ok) throw new Error("No se pudo obtener el salón");
 
     const dataSalon = await respSalon.json();
-    salon = dataSalon.salon;
+    salon = dataSalon.data || dataSalon;
 
     infoSalon.innerHTML = `
       <h3>${salon.titulo}</h3>
@@ -31,9 +38,11 @@ document.addEventListener("DOMContentLoaded", async () => {
       <p><strong>Precio:</strong> $${salon.importe}</p>
     `;
   } catch (error) {
-    infoSalon.innerHTML = "<p> No se pudo cargar la información del salón.</p>";
+    console.error(error);
+    infoSalon.innerHTML = "<p>No se pudo cargar la información del salón.</p>";
   }
 
+  // Cargar turnos
   try {
     const respTurnos = await fetch("/api/turnos");
     if (!respTurnos.ok) throw new Error("No se pudieron cargar los turnos");
@@ -50,6 +59,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     turnoSelect.innerHTML = '<option value="">No se pudieron cargar los turnos</option>';
   }
 
+  // Cargar servicios
   try {
     const respServicios = await fetch("/api/servicios");
     if (!respServicios.ok) throw new Error("No se pudieron cargar los servicios");
@@ -78,43 +88,51 @@ document.addEventListener("DOMContentLoaded", async () => {
     serviciosContainer.innerHTML = "<p>No se pudieron cargar los servicios adicionales.</p>";
   }
 
- function actualizarResumen() {
-  if (!salon) return;
-  const turnoId = turnoSelect.value;
-  const turnoSeleccionado = turnos.find(t => t.turno_id == turnoId);
-  const serviciosSeleccionados = servicios.filter(s => document.getElementById(`servicio-${s.servicio_id}`).checked);
+  // Actualizar resumen
+  function actualizarResumen() {
+    if (!salon) return;
+    const fecha = document.getElementById("fecha").value;
+    const turnoId = turnoSelect.value;
+    const turnoSeleccionado = turnos.find(t => t.turno_id == turnoId);
+    const serviciosSeleccionados = servicios.filter(s => document.getElementById(`servicio-${s.servicio_id}`).checked);
+    const tematica = inputTematica.value.trim();
 
-  if (!turnoSeleccionado) {
-    resumenReserva.innerHTML = "<p>Selecciona fecha, turno y servicios para ver el resumen.</p>";
-    return;
+    if (!turnoSeleccionado) {
+      resumenReserva.innerHTML = "<p>Selecciona fecha, turno y servicios para ver el resumen.</p>";
+      return;
+    }
+
+    let total = Number(salon.importe);
+    let serviciosHtml = "";
+    serviciosSeleccionados.forEach(s => {
+      total += Number(s.importe);
+      serviciosHtml += `<li>${s.descripcion} - $${Number(s.importe).toFixed(2)}</li>`;
+    });
+
+    resumenReserva.innerHTML = `
+      <p><strong>Salón:</strong> ${salon.titulo} - $${Number(salon.importe).toFixed(2)}</p>
+      <p><strong>Fecha:</strong> ${fecha || "No seleccionada"}</p>
+      <p><strong>Turno:</strong> ${turnoSeleccionado.hora_desde} - ${turnoSeleccionado.hora_hasta}</p>
+      <p><strong>Temática:</strong> ${tematica || "Sin definir"}</p>
+      <p><strong>Servicios adicionales:</strong></p>
+      <ul>${serviciosHtml || "<li>Ninguno seleccionado</li>"}</ul>
+      <p><strong>Total:</strong> $${total.toFixed(2)}</p>
+    `;
   }
-
-  let total = Number(salon.importe);
-  let serviciosHtml = "";
-  serviciosSeleccionados.forEach(s => {
-    total += Number(s.importe);
-    serviciosHtml += `<li>${s.descripcion} - $${Number(s.importe).toFixed(2)}</li>`;
-  });
-
-  resumenReserva.innerHTML = `
-    <p><strong>Salón:</strong> ${salon.titulo} - $${Number(salon.importe).toFixed(2)}</p>
-    <p><strong>Turno:</strong> ${turnoSeleccionado.hora_desde} - ${turnoSeleccionado.hora_hasta}</p>
-    <p><strong>Servicios adicionales:</strong></p>
-    <ul>${serviciosHtml || "<li>Ninguno seleccionado</li>"}</ul>
-    <p><strong>Total:</strong> $${total.toFixed(2)}</p>
-  `;
-}
-
 
   turnoSelect.addEventListener("change", actualizarResumen);
   document.addEventListener("change", e => {
     if (e.target.classList.contains("checkbox-servicio")) actualizarResumen();
   });
+  document.getElementById("fecha").addEventListener("change", actualizarResumen);
+  inputTematica.addEventListener("input", actualizarResumen);
 
+  // Confirmar reserva
   const btnConfirmar = document.getElementById("btn-confirmar");
   btnConfirmar.addEventListener("click", async () => {
     const fecha = document.getElementById("fecha").value;
     const turnoId = turnoSelect.value;
+    const tematica = inputTematica.value.trim();
     const serviciosSeleccionados = servicios.filter(s => document.getElementById(`servicio-${s.servicio_id}`).checked);
 
     if (!fecha || !turnoId) {
@@ -134,16 +152,17 @@ document.addEventListener("DOMContentLoaded", async () => {
           salon_id: salonId,
           fecha_reserva: fecha,
           turno_id: turnoId,
+          tematica: tematica,
           servicios: serviciosSeleccionados.map(s => s.servicio_id)
         })
       });
 
       const result = await res.json();
       if (res.ok) {
-        mensaje.textContent = "Reserva confirmada con éxito!";
+        mensaje.textContent = "¡Reserva confirmada con éxito!";
         mensaje.style.color = "green";
       } else {
-        mensaje.textContent = "" + (result.message || "Error al realizar la reserva.");
+        mensaje.textContent = result.message || "Error al realizar la reserva.";
         mensaje.style.color = "red";
       }
     } catch (err) {
@@ -152,6 +171,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 
+  // Logout
   const logout = document.getElementById("logout");
   logout.addEventListener("click", () => {
     localStorage.clear();

@@ -1,24 +1,24 @@
 import pool from '../config/db.js';
-import Salon from '../models/salones.js';
 
 export const obtenerSalones = async () => {
   const [rows] = await pool.query('SELECT * FROM salones WHERE activo = 1');
-  return rows.map(row => new Salon(row));
+  return rows; 
 };
 
 export const obtenerSalonPorId = async (id) => {
   const [rows] = await pool.query('SELECT * FROM salones WHERE salon_id = ? AND activo = 1', [id]);
   if (rows.length === 0) return null;
-  return new Salon(rows[0]);
+  return rows[0]; 
 };
 
 export const crearSalon = async (data) => {
-  const { titulo, direccion, latitud, longitud, capacidad, importe } = data;
+  const { titulo, direccion, latitud = null, longitud = null, capacidad, importe } = data;
 
   const [existe] = await pool.query('SELECT * FROM salones WHERE titulo = ? AND activo = 1', [titulo]);
   if (existe.length > 0) {
     return null;
   }
+
   const [result] = await pool.query(
     'INSERT INTO salones (titulo, direccion, latitud, longitud, capacidad, importe) VALUES (?, ?, ?, ?, ?, ?)',
     [titulo, direccion, latitud, longitud, capacidad, importe]
@@ -32,9 +32,10 @@ export const actualizarSalon = async (id, data) => {
     return null; 
   }
   
-  const { titulo, direccion, latitud, longitud, capacidad, importe } = data;
+  const { titulo, direccion, latitud = null, longitud = null, capacidad, importe } = data;
+  
   await pool.query(
-    'UPDATE salones SET titulo=?, direccion=?, latitud=?, longitud=?, capacidad=?, importe=? WHERE salon_id=?',
+    'UPDATE salones SET titulo=?, direccion=?, latitud=?, longitud=?, capacidad=?, importe=?, modificado=CURRENT_TIMESTAMP WHERE salon_id=?',
     [titulo, direccion, latitud, longitud, capacidad, importe, id]
   );
   return await obtenerSalonPorId(id);
@@ -45,6 +46,6 @@ export const eliminarSalon = async (id) => {
   if (!salonExiste) {
     return null;
   }
-  await pool.query('UPDATE salones SET activo=0 WHERE salon_id=?', [id]);
+  await pool.query('UPDATE salones SET activo=0, modificado=CURRENT_TIMESTAMP WHERE salon_id=?', [id]);
   return id;
 };

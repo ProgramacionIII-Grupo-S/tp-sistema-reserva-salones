@@ -76,7 +76,10 @@ label {
   color: #0d0d0d;
 }
 
-input[type="date"], select {
+/* Inputs con borde naranja */
+input[type="date"], 
+input[type="text"], 
+select {
   width: 100%;
   padding: 10px;
   border-radius: 5px;
@@ -85,8 +88,17 @@ input[type="date"], select {
   color: #0d0d0d;
   font-size: 16px;
   box-sizing: border-box;
+  transition: all 0.3s ease;
 }
 
+/* Efecto al hacer foco en los inputs */
+input[type="date"]:focus, 
+input[type="text"]:focus, 
+select:focus {
+  outline: none;
+  border-color: #ffa54f;
+  box-shadow: 0 0 8px rgba(255, 117, 24, 0.6);
+}
 
 #servicios-container {
   margin-bottom: 20px;
@@ -155,3 +167,4 @@ footer {
   padding: 15px;
   margin-top: 40px;
 }
+
