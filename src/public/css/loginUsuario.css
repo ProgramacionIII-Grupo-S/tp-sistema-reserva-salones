@@ -1,0 +1,104 @@
+
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: 'Poppins', sans-serif;
+  background-color: #c9b1fc;
+  display: flex;
+  flex-direction: column; 
+}
+
+.login-usuario-header {
+  background-color: #0d0d0d;
+  color: #ff7518;
+  padding: 20px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.login-usuario-header h1{
+   text-shadow: 0 0 8px #ff7518;
+}
+.login-usuario-header nav a {
+  color: #ffa54f;
+  margin: 0 20px;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 20px;
+}
+
+.login-usuario-header nav a:hover {
+  text-shadow: 0 0 5px #ff7518;
+}
+
+main {
+  flex: 1; 
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.login-usuario-container {
+  background-color: #ffffff;
+  padding: 40px 30px;
+  border-radius: 10px;
+  box-shadow: 0 0 20px rgba(255, 117, 24, 0.5);
+  width: 100%;
+  max-width: 350px;
+  text-align: center;
+}
+
+.login-usuario-container h2 {
+  color: #0d0d0d;
+  margin-bottom: 25px;
+  font-size: 25px;
+}
+
+.login-usuario-container input {
+  width: 100%;
+  padding: 12px 10px;
+  margin: 12px 0;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+  box-sizing: border-box;
+}
+
+.login-usuario-container button {
+  width: 100%;
+  padding: 12px;
+  margin-top: 15px;
+  background-color: #c9b1fc;
+  border: none;
+  border-radius: 5px;
+  color: #0d0d0d;
+  font-weight: bold;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.login-usuario-container button:hover {
+  background-color: #ffa54f;
+}
+
+.login-usuario-container .register-link {
+  display: block;
+  margin-top: 20px;
+  color: #2e0a0a;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.login-usuario-container .register-link:hover {
+  text-decoration: underline;
+}
+
+footer {
+  background-color: #0d0d0d;
+  color: #ffa54f;
+  text-align: center;
+  padding: 15px;
+  margin-top: auto; 
+}
