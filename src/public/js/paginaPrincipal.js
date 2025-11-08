@@ -70,8 +70,6 @@ async function cargarSalones() {
       headers['Authorization'] = `Bearer ${token}`;
     }
 
-    console.log("Enviando request a /api/salones con token:", token ? "Sí" : "No");
-
     const respuesta = await fetch("/api/salones", {
       method: "GET",
       headers: headers

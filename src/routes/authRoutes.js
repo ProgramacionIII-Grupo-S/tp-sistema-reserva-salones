@@ -1,8 +1,9 @@
 import express from 'express';
-import { register, login, verify } from '../controllers/authController.js';
-import { authenticateToken } from '../middleware/authMiddleware.js';
+import { register, login, verify, registerClient } from '../controllers/authController.js';
+import { authenticateToken, authorize } from '../middleware/authMiddleware.js';
 import { registerValidator, loginValidator } from '../middleware/validators/validator.js';
 import { handleValidationErrors } from '../middleware/validators/validator.js'
+import { USER_TYPES } from '../utils/constants/userTypes.js';
 
 const router = express.Router();
 
@@ -33,10 +34,13 @@ const router = express.Router();
  *             properties:
  *               nombre:
  *                 type: string
+ *                 example: "Jonh"
  *               apellido:
  *                 type: string
+ *                 example: "Doe"
  *               nombre_usuario:
  *                 type: string
+ *                 example: "jonh@correo.com"
  *               contrasenia:
  *                 type: string
  *               celular:
@@ -137,6 +141,7 @@ router.post('/register/client', registerValidator, handleValidationErrors, regis
  *             properties:
  *               nombre_usuario:
  *                 type: string
+ *                 example: "juan@correo.com"
  *               contrasenia:
  *                 type: string
  *     responses:

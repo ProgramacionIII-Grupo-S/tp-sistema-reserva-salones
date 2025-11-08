@@ -25,9 +25,9 @@ export const registerValidator = [
     .matches(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/).withMessage('El apellido solo puede contener letras y espacios'),
   
   body('nombre_usuario')
-    .notEmpty().withMessage('El nombre de usuario es requerido')
-    .isLength({ min: 3, max: 30 }).withMessage('El usuario debe tener entre 3 y 30 caracteres')
-    .matches(/^[a-zA-Z0-9_]+$/).withMessage('Solo se permiten letras, números y guiones bajos'),
+    .notEmpty().withMessage('El email es requerido')
+    .isEmail().withMessage('Debe ser un email válido')
+    .isLength({ min: 5, max: 100 }).withMessage('El email debe tener entre 5 y 100 caracteres'),
   
   body('contrasenia')
     .isLength({ min: 6 }).withMessage('La contraseña debe tener al menos 6 caracteres')

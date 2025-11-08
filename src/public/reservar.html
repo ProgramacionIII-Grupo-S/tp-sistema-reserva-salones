@@ -1,60 +1,77 @@
 <!DOCTYPE html>
 <html lang="es">
-   <head>
-     <meta charset="UTF-8">
-     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-     <title>Reservar Salón</title>
-     <link rel="stylesheet" href="/css/reservar.css">
-   </head>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Reservar Salón</title>
+    <link rel="stylesheet" href="/css/reservar.css" />
+  </head>
   <body>
+    <header class="main-header">
+      <h1>Salones para tus fiestas</h1>
+      <nav>
+        <a href="/paginaPrincipal.html">Inicio</a>
+        <a href="/perfil-usuario.html">Mi Perfil</a>
+        <a href="#" id="logout">Cerrar sesión</a>
+      </nav>
+    </header>
 
-   <header class="main-header">
-     <h1>Salones para tus fiestas</h1>
-     <nav>
-       <a href="/paginaPrincipal.html">Inicio</a>
-       <a href="#" id="logout">Cerrar sesión</a>
-     </nav>
-   </header>
+    <main>
+     <section id="seleccionar-salon" class="seleccionar-salon" style="display: none;">
+            <h2>Selecciona un Salón</h2>
+            <p>Por favor, selecciona un salón para continuar con tu reserva:</p>
+            
+            <div class="form-group">
+                <label for="select-salon">Selecciona un salón:</label>
+                <select id="select-salon" class="form-select">
+                    <option value="">-- Selecciona un salón --</option>
+                </select>
+            </div>
 
-   <main>
-    <section class="reserva-container">
-      <h2>Confirmar reserva</h2>
+            <button id="btn-continuar" class="btn-primario" disabled>Continuar con la reserva</button>
+        </section>
+       <section id="formulario-reserva" class="reserva-container" style="display: none;">
+        <h2>Confirmar reserva</h2>
 
-      <div id="info-salon">
-        <p>Cargando información del salón...</p>
-      </div>
+        <div id="info-salon">
+          <p>Cargando información del salón...</p>
+        </div>
 
-      <label for="fecha">Fecha del evento:</label>
-      <input type="date" id="fecha" required>
+        <label for="fecha">Fecha del evento:</label>
+        <input type="date" id="fecha" required />
 
-      <label for="turno">Selecciona un turno:</label>
-      <select id="turno" required>
-        <option value="">Cargando turnos...</option>
-      </select>
+        <label for="turno">Selecciona un turno:</label>
+        <select id="turno" required>
+          <option value="">Cargando turnos...</option>
+        </select>
 
-     <label for="tematica">Temática del evento:</label>
-     <input type="text" id="tematica" placeholder="Ej: Frozen, Circo, Cars..." />
+        <label for="tematica">Temática del evento:</label>
+        <input
+          type="text"
+          id="tematica"
+          placeholder="Ej: Frozen, Circo, Cars..."
+        />
 
-      <h3>Servicios adicionales</h3>
-      <div id="servicios-container">
-        <p>Cargando servicios adicionales...</p>
-      </div>
+        <h3>Servicios adicionales</h3>
+        <div id="servicios-container">
+          <p>Cargando servicios adicionales...</p>
+        </div>
 
-      <label>Resumen de tu reserva:</label>
-      <div id="resumen-reserva">
-        <p>Selecciona fecha, turno y servicios para ver el resumen.</p>
-     </div>
+        <label>Resumen de tu reserva:</label>
+        <div id="resumen-reserva">
+          <p>Selecciona fecha, turno y servicios para ver el resumen.</p>
+        </div>
 
- 
-      <button id="btn-confirmar">Confirmar reserva</button>
-      <p id="mensaje"></p>
-    </section>
-   </main>
+        <button id="btn-confirmar">Confirmar reserva</button>
+            <p id="mensaje"></p>
+        </section>
 
-   <footer>
-     <p>Grupo S - Todos los derechos reservados</p>
-   </footer>
+    </main>
 
-   <script src="/js/reservar.js"></script>
- </body>
+    <footer>
+      <p>Grupo S - Todos los derechos reservados</p>
+    </footer>
+
+    <script src="/js/reservar.js"></script>
+  </body>
 </html>

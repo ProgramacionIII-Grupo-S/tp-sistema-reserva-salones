@@ -76,12 +76,37 @@ app.use('/api/reportes', reportRoutes);
 app.use('/api/test', testRoutes);
 app.use('/api/reservas', reservasRoutes);
 
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'login.html'));
+// 📌 Rutas frontend
+app.get('/login-staff', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'login-staff.html'));
 });
 
-app.get('/dashboard', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
+app.get('/login-usuario', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'loginUsuario.html'));
+});
+
+app.get('/registrate', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'registerUsuario.html'));
+});
+
+app.get('/paginaPrincipal', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'paginaPrincipal.html'));
+});
+
+app.get('/reservar', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'reservar.html'));
+});
+
+app.get('/dashboard-estadisticas', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'dashboard-estadisticas.html'));
+});
+
+app.get('/admin-main', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'admin-main.html'));
+});
+
+app.get('/empleado-dashboard', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'empleado-dashboard.html'));
 });
 
 app.use((req, res) => {
@@ -108,6 +133,9 @@ app.listen(PORT, () => {
   Puerto: ${PORT}
   Conexión a la Base de Datos activa
   Swagger disponible en http://localhost:${PORT}/api-docs
+  Rutas Frontend
+  Cliente panel disponible en http://localhost:${PORT}/paginaPrincipal
+  Staff dashboard disponible en http://localhost:${PORT}/login-staff
   `);
 });
 
