@@ -826,24 +826,25 @@ function abrirModalServicio(servicioId = null) {
 
 async function cargarDatosServicio(servicioId) {
   try {
-    const response = await fetch(`${API_BASE}/servicios`, {
+    const response = await fetch(`${API_BASE}/servicios/${servicioId}`, {
       headers: getAuthHeaders()
     });
     
-    if (!response.ok) throw new Error('Error al cargar datos del servicio');
+     if (!response.ok) throw new Error('Error al cargar datos del servicio');
     
     const data = await response.json();
-    const servicios = data.data || data;
-    const servicio = servicios.find(s => s.servicio_id == servicioId);
+    const servicio = data.data;
     
     if (servicio) {
       document.getElementById('servicioId').value = servicio.servicio_id;
       document.getElementById('servicioDescripcion').value = servicio.descripcion;
       document.getElementById('servicioImporte').value = servicio.importe;
+    } else {
+      throw new Error('Servicio no encontrado');
     }
   } catch (error) {
     console.error('Error:', error);
-    alert('Error al cargar datos del servicio');
+    alert('Error al cargar datos del servicio: ' + error.message);
   }
 }
 
@@ -959,37 +960,54 @@ function abrirModalTurno(turnoId = null) {
 
 async function cargarDatosTurno(turnoId) {
   try {
-    const response = await fetch(`${API_BASE}/turnos`, {
+     const response = await fetch(`${API_BASE}/turnos/${turnoId}`, {
       headers: getAuthHeaders()
     });
     
     if (!response.ok) throw new Error('Error al cargar datos del turno');
     
     const data = await response.json();
-    const turnos = data.data || data;
-    const turno = turnos.find(t => t.turno_id == turnoId);
+    const turno = data.data;
     
     if (turno) {
       document.getElementById('turnoId').value = turno.turno_id;
       document.getElementById('turnoOrden').value = turno.orden;
       document.getElementById('turnoHoraDesde').value = turno.hora_desde;
       document.getElementById('turnoHoraHasta').value = turno.hora_hasta;
+    } else {
+      throw new Error('Turno no encontrado');
     }
   } catch (error) {
     console.error('Error:', error);
-    alert('Error al cargar datos del turno');
+    alert('Error al cargar datos del turno: ' + error.message);
   }
 }
 
 async function guardarTurno(e) {
   e.preventDefault();
   
-  const turnoId = document.getElementById('turnoId').value;
+   const turnoId = document.getElementById('turnoId').value;
   const turnoData = {
     orden: parseInt(document.getElementById('turnoOrden').value),
     hora_desde: document.getElementById('turnoHoraDesde').value,
     hora_hasta: document.getElementById('turnoHoraHasta').value
   };
+
+  // Validaciones básicas
+  if (!turnoData.orden || turnoData.orden <= 0) {
+    alert('El orden debe ser un número mayor a 0');
+    return;
+  }
+
+  if (!turnoData.hora_desde || !turnoData.hora_hasta) {
+    alert('Las horas son obligatorias');
+    return;
+  }
+
+  if (turnoData.hora_desde >= turnoData.hora_hasta) {
+    alert('La hora desde debe ser menor que la hora hasta');
+    return;
+  }
 
   try {
     const url = turnoId ? `${API_BASE}/turnos/${turnoId}` : `${API_BASE}/turnos`;
@@ -1004,15 +1022,20 @@ async function guardarTurno(e) {
       body: JSON.stringify(turnoData)
     });
 
-    if (!response.ok) throw new Error('Error al guardar el turno');
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.mensaje || `Error ${response.status} al guardar el turno`);
+    }
 
+    const result = await response.json();
+    
     alert(turnoId ? 'Turno actualizado correctamente' : 'Turno creado correctamente');
     
     document.getElementById('modalTurno').style.display = 'none';
     cargarTurnos();
   } catch (error) {
     console.error('Error:', error);
-    alert('Error al guardar el turno');
+    alert('Error al guardar el turno: ' + error.message);
   }
 }
 
@@ -1021,7 +1044,7 @@ function editarTurno(id) {
 }
 
 async function eliminarTurno(id) {
-  if (!confirm('¿Estás seguro de que deseas eliminar este turno?')) return;
+   if (!confirm('¿Estás seguro de que deseas eliminar este turno?')) return;
   
   try {
     const response = await fetch(`${API_BASE}/turnos/${id}`, {
@@ -1029,13 +1052,18 @@ async function eliminarTurno(id) {
       headers: getAuthHeaders()
     });
 
-    if (!response.ok) throw new Error('Error al eliminar el turno');
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.mensaje || `Error ${response.status} al eliminar el turno`);
+    }
 
+    const result = await response.json();
+    
     alert('Turno eliminado correctamente');
     cargarTurnos();
   } catch (error) {
     console.error('Error:', error);
-    alert('Error al eliminar el turno');
+    alert('Error al eliminar el turno: ' + error.message);
   }
 }
 
