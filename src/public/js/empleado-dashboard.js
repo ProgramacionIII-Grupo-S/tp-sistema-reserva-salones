@@ -13,7 +13,7 @@ function checkAuth() {
   const user = localStorage.getItem('user');
   
   if (!token || !user) {
-    window.location.href = '/login.html';
+    window.location.href = '/login-staff.html';
     return;
   }
 
@@ -21,7 +21,7 @@ function checkAuth() {
   
   if (currentUser.tipo_usuario !== 2) {
     alert('No tienes permisos para acceder a esta sección');
-    window.location.href = '/login.html';
+    window.location.href = '/login-staff.html';
     return;
   }
 
@@ -672,5 +672,5 @@ async function eliminarTurno(id) {
 function logout() {
   localStorage.removeItem('token');
   localStorage.removeItem('user');
-  window.location.href = '/login.html';
+  window.location.href = '/login-staff.html';
 }
