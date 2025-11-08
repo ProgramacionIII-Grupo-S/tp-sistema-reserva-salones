@@ -1,16 +1,21 @@
 import pool from "../config/db.js";
 
-//Lista turnos activos
+// ===============================
+// Listar turnos activos
+// ===============================
 export const listarTurnos = async (req, res) => {
   try {
-    const [rows] = await pool.query("SELECT * FROM turnos WHERE activo = 1");
-    res.json(rows);
+    const [rows] = await pool.query("SELECT * FROM turnos WHERE activo = 1 ORDER BY orden ASC");
+    res.status(200).json(rows);
   } catch (error) {
-    res.status(500).json({ message: "Error al listar turnos", error: error.message });
+    console.error("Error al listar turnos:", error);
+    res.status(500).json({ message: "Error al listar turnos" });
   }
 };
 
-// crear turno
+// ===============================
+// Crear nuevo turno
+// ===============================
 export const crearTurno = async (req, res) => {
   const { orden, hora_desde, hora_hasta } = req.body;
 
@@ -25,33 +30,43 @@ export const crearTurno = async (req, res) => {
       "INSERT INTO turnos (orden, hora_desde, hora_hasta, activo, creado, modificado) VALUES (?, ?, ?, 1, NOW(), NOW())",
       [orden, hora_desde, hora_hasta]
     );
-    res.status(201).json({ message: "Turno creado correctamente", turno_id: result.insertId });
+    res.status(201).json({
+      message: "Turno creado correctamente",
+      turno_id: result.insertId,
+    });
   } catch (error) {
-    res.status(500).json({ message: "Error al crear turno", error: error.message });
+    console.error("Error al crear turno:", error);
+    res.status(500).json({ message: "Error al crear turno" });
   }
 };
 
-// actualizar turno
+// ===============================
+// Actualizar turno existente
+// ===============================
 export const actualizarTurno = async (req, res) => {
   const { id } = req.params;
   const { orden, hora_desde, hora_hasta } = req.body;
 
   try {
     const [result] = await pool.query(
-      "UPDATE turnos SET orden = ?, hora_desde = ?, hora_hasta = ?, modificado = NOW() WHERE turno_id = ?",
+      "UPDATE turnos SET orden = ?, hora_desde = ?, hora_hasta = ?, modificado = NOW() WHERE turno_id = ? AND activo = 1",
       [orden, hora_desde, hora_hasta, id]
     );
 
-    if (result.affectedRows === 0)
+    if (result.affectedRows === 0) {
       return res.status(404).json({ message: "Turno no encontrado" });
+    }
 
-    res.json({ message: "Turno actualizado correctamente" });
+    res.status(200).json({ message: "Turno actualizado correctamente" });
   } catch (error) {
-    res.status(500).json({ message: "Error al actualizar turno", error: error.message });
+    console.error("Error al actualizar turno:", error);
+    res.status(500).json({ message: "Error al actualizar turno" });
   }
 };
 
-// eliminar (soft delete)
+// ===============================
+// Eliminar turno (soft delete)
+// ===============================
 export const eliminarTurno = async (req, res) => {
   const { id } = req.params;
 
@@ -61,11 +76,13 @@ export const eliminarTurno = async (req, res) => {
       [id]
     );
 
-    if (result.affectedRows === 0)
+    if (result.affectedRows === 0) {
       return res.status(404).json({ message: "Turno no encontrado" });
+    }
 
-    res.json({ message: "Turno eliminado correctamente" });
+    res.status(200).json({ message: "Turno eliminado correctamente" });
   } catch (error) {
-    res.status(500).json({ message: "Error al eliminar turno", error: error.message });
+    console.error("Error al eliminar turno:", error);
+    res.status(500).json({ message: "Error al eliminar turno" });
   }
 };

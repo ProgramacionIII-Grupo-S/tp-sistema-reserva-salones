@@ -12,7 +12,7 @@ const router = express.Router();
  * @swagger
  * tags:
  *   name: Turnos
- *   description: Endpoints para gestionar los turnos disponibles
+ *   description: Endpoints para gestionar los turnos
  */
 
 /**
@@ -98,7 +98,6 @@ const router = express.Router();
 // ===============================
 // Rutas del CRUD de turnos
 // ===============================
-
 router.get("/", listarTurnos);
 router.post("/", crearTurno);
 router.put("/:id", actualizarTurno);
