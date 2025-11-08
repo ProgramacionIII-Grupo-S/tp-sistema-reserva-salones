@@ -1,16 +1,33 @@
 const API_BASE = 'http://localhost:3000/api';
-let jwtToken = localStorage.getItem('token') || '';
+
+function obtenerToken() {
+    const urlParams = new URLSearchParams(window.location.search);
+    let token = urlParams.get('token');
+    
+    if (!token) {
+        token = localStorage.getItem('token');
+    }
+    
+    return token;
+}
+
+let jwtToken = obtenerToken();
+
+if (!jwtToken) {
+    console.error('No se encontró token de autenticación');
+    window.location.href = 'login-staff.html';
+} else {
+    localStorage.setItem('token', jwtToken);
+    console.log('Token obtenido correctamente');
+}
 
 let chartReservasMes = null;
 let chartReservasSalon = null;
 let chartTopClientes = null;
 
-if (!jwtToken) {
-    window.location.href = 'login.html';
-}
-
-// Helper para fetch con autenticación
 async function fetchConAuth(url, options = {}) {
+    jwtToken = obtenerToken();
+    
     options.headers = { ...(options.headers || {}), ...getAuthHeaders() };
     const res = await fetch(url, options);
     if (res.status === 401 || res.status === 403) {
@@ -46,12 +63,20 @@ function getAuthHeaders() {
 
 function redirigirLogin() {
     localStorage.removeItem('token');
-    window.location.href = 'login.html';
+    if (window.location.search.includes('token=')) {
+        const newUrl = window.location.pathname;
+        window.history.replaceState({}, document.title, newUrl);
+    }
+    window.location.href = 'login-staff.html';
 }
 
 function cerrarSesion() {
     localStorage.removeItem('token');
-    window.location.href = 'login.html';
+    if (window.location.search.includes('token=')) {
+        const newUrl = window.location.pathname;
+        window.history.replaceState({}, document.title, newUrl);
+    }
+    window.location.href = 'login-staff.html';
 }
 
 function mostrarNotificacion(mensaje, tipo = 'info') {
@@ -323,32 +348,71 @@ function crearTablaSalones(datos) {
 
 // Funciones de descarga
 async function descargarReportePDF() {
-    if (!jwtToken) return redirigirLogin();
-
-    const fechaDesde = document.getElementById('fechaDesde').value;
-    const fechaHasta = document.getElementById('fechaHasta').value;
-
-    if (!fechaDesde || !fechaHasta) return mostrarNotificacion('Selecciona un período de fechas', 'error');
-
     try {
+        const fechaDesde = document.getElementById('fechaDesde').value;
+        const fechaHasta = document.getElementById('fechaHasta').value;
+
+        if (!fechaDesde || !fechaHasta) {
+            mostrarNotificacion('Selecciona un período de fechas', 'error');
+            return;
+        }
+
+        // Codificar correctamente los parámetros
+        const params = new URLSearchParams({
+            fecha_desde: fechaDesde,
+            fecha_hasta: fechaHasta,
+            titulo: 'Reporte Dashboard'
+        });
+
+        const url = `${API_BASE}/reportes/pdf?${params.toString()}`;
+        console.log('🔗 URL completa:', url);
+        console.log('🔑 Token:', jwtToken ? 'Presente' : 'Ausente');
+
         mostrarNotificacion('Generando PDF...', 'info');
 
-        const response = await fetchConAuth(
-            `${API_BASE}/reportes/pdf?fecha_desde=${fechaDesde}&fecha_hasta=${fechaHasta}&titulo=Reporte Dashboard`
-        );
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${jwtToken}`,
+                'Content-Type': 'application/json'
+            }
+        });
 
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `reporte-reservas-${fechaDesde}-a-${fechaHasta}.pdf`;
-        document.body.appendChild(a);
-        a.click();
-        window.URL.revokeObjectURL(url);
-        document.body.removeChild(a);
+        console.log('📥 Response status:', response.status);
+        console.log('📥 Response headers:', Object.fromEntries(response.headers.entries()));
 
-        mostrarNotificacion('PDF descargado exitosamente', 'success');
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('❌ Error response:', errorText);
+            throw new Error(`Error ${response.status}: ${response.statusText}`);
+        }
+
+        // Verificar que sea un PDF
+        const contentType = response.headers.get('content-type');
+        console.log('📄 Content-Type:', contentType);
+
+        if (contentType && contentType.includes('application/pdf')) {
+            const blob = await response.blob();
+            console.log('📦 Blob size:', blob.size);
+            
+            const urlBlob = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = urlBlob;
+            a.download = `reporte-${fechaDesde}-a-${fechaHasta}.pdf`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(urlBlob);
+            
+            mostrarNotificacion('PDF descargado exitosamente', 'success');
+        } else {
+            const text = await response.text();
+            console.error('❌ No es PDF, respuesta:', text);
+            throw new Error('El servidor no devolvió un PDF válido');
+        }
+
     } catch (error) {
+        console.error('💥 Error completo al descargar PDF:', error);
         mostrarNotificacion('Error descargando PDF: ' + error.message, 'error');
     }
 }

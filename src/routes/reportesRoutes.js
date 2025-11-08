@@ -25,6 +25,133 @@ const router = express.Router();
 
 /**
  * @swagger
+ * /reportes/pdf:
+ *   get:
+ *     summary: Generar reporte de reservas en PDF
+ *     tags: [Reportes]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: fecha_desde
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Fecha de inicio (YYYY-MM-DD)
+ *       - in: query
+ *         name: fecha_hasta
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Fecha de fin (YYYY-MM-DD)
+ *       - in: query
+ *         name: titulo
+ *         schema:
+ *           type: string
+ *         description: Título personalizado del reporte
+ *     responses:
+ *       200:
+ *         description: Reporte PDF generado
+ *         content:
+ *           application/pdf:
+ *             schema:
+ *               type: string
+ *               format: binary
+ *       400:
+ *         description: Fechas requeridas
+ */
+router.get('/pdf', authenticateToken, requireAdmin, generarReportePDF);
+
+/**
+ * @swagger
+ * /reportes/csv:
+ *   get:
+ *     summary: Generar reporte de reservas en CSV
+ *     tags: [Reportes]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: fecha_desde
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Fecha de inicio (YYYY-MM-DD)
+ *       - in: query
+ *         name: fecha_hasta
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Fecha de fin (YYYY-MM-DD)
+ *     responses:
+ *       200:
+ *         description: Reporte CSV generado
+ *         content:
+ *           text/csv:
+ *             schema:
+ *               type: string
+ *       400:
+ *         description: Fechas requeridas
+ */
+router.get('/csv', authenticateToken, requireAdmin, generarReporteCSV);
+
+/**
+ * @swagger
+ * /reportes/estadisticas-mensual-pdf:
+ *   get:
+ *     summary: Generar estadísticas mensuales en PDF
+ *     tags: [Reportes]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: anio
+ *         schema:
+ *           type: integer
+ *           default: 2024
+ *         description: Año para las estadísticas
+ *     responses:
+ *       200:
+ *         description: PDF de estadísticas mensuales generado
+ *         content:
+ *           application/pdf:
+ *             schema:
+ *               type: string
+ *               format: binary
+ */
+router.get('/estadisticas-mensual-pdf', authenticateToken, requireAdmin, generarEstadisticasMensualPDF);
+
+/**
+ * @swagger
+ * /reportes/estadisticas-salon-pdf:
+ *   get:
+ *     summary: Generar estadísticas por salón en PDF
+ *     tags: [Reportes]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: salon_id
+ *         schema:
+ *           type: integer
+ *         description: ID del salón (opcional)
+ *     responses:
+ *       200:
+ *         description: PDF de estadísticas por salón generado
+ *         content:
+ *           application/pdf:
+ *             schema:
+ *               type: string
+ *               format: binary
+ */
+router.get('/estadisticas-salon-pdf', authenticateToken, requireAdmin, generarEstadisticasSalonPDF);
+
+/**
+ * @swagger
  * /reportes/reservas-por-mes:
  *   get:
  *     summary: Total de reservas por mes
@@ -232,131 +359,5 @@ router.get('/lista-empleados', authenticateToken, requireAdmin, getListaEmpleado
  */
 router.get('/servicios-populares', authenticateToken, requireAdmin, getServiciosPopulares);
 
-/**
- * @swagger
- * /reportes/pdf:
- *   get:
- *     summary: Generar reporte de reservas en PDF
- *     tags: [Reportes]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: query
- *         name: fecha_desde
- *         required: true
- *         schema:
- *           type: string
- *           format: date
- *         description: Fecha de inicio (YYYY-MM-DD)
- *       - in: query
- *         name: fecha_hasta
- *         required: true
- *         schema:
- *           type: string
- *           format: date
- *         description: Fecha de fin (YYYY-MM-DD)
- *       - in: query
- *         name: titulo
- *         schema:
- *           type: string
- *         description: Título personalizado del reporte
- *     responses:
- *       200:
- *         description: Reporte PDF generado
- *         content:
- *           application/pdf:
- *             schema:
- *               type: string
- *               format: binary
- *       400:
- *         description: Fechas requeridas
- */
-router.get('/pdf', authenticateToken, requireAdmin, generarReportePDF);
-
-/**
- * @swagger
- * /reportes/csv:
- *   get:
- *     summary: Generar reporte de reservas en CSV
- *     tags: [Reportes]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: query
- *         name: fecha_desde
- *         required: true
- *         schema:
- *           type: string
- *           format: date
- *         description: Fecha de inicio (YYYY-MM-DD)
- *       - in: query
- *         name: fecha_hasta
- *         required: true
- *         schema:
- *           type: string
- *           format: date
- *         description: Fecha de fin (YYYY-MM-DD)
- *     responses:
- *       200:
- *         description: Reporte CSV generado
- *         content:
- *           text/csv:
- *             schema:
- *               type: string
- *       400:
- *         description: Fechas requeridas
- */
-router.get('/csv', authenticateToken, requireAdmin, generarReporteCSV);
-
-/**
- * @swagger
- * /reportes/estadisticas-mensual-pdf:
- *   get:
- *     summary: Generar estadísticas mensuales en PDF
- *     tags: [Reportes]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: query
- *         name: anio
- *         schema:
- *           type: integer
- *           default: 2024
- *         description: Año para las estadísticas
- *     responses:
- *       200:
- *         description: PDF de estadísticas mensuales generado
- *         content:
- *           application/pdf:
- *             schema:
- *               type: string
- *               format: binary
- */
-router.get('/estadisticas-mensual-pdf', authenticateToken, requireAdmin, generarEstadisticasMensualPDF);
-
-/**
- * @swagger
- * /reportes/estadisticas-salon-pdf:
- *   get:
- *     summary: Generar estadísticas por salón en PDF
- *     tags: [Reportes]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: query
- *         name: salon_id
- *         schema:
- *           type: integer
- *         description: ID del salón (opcional)
- *     responses:
- *       200:
- *         description: PDF de estadísticas por salón generado
- *         content:
- *           application/pdf:
- *             schema:
- *               type: string
- *               format: binary
- */
-router.get('/estadisticas-salon-pdf', authenticateToken, requireAdmin, generarEstadisticasSalonPDF);
 
 export default router;

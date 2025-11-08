@@ -13,7 +13,7 @@ function checkAuth() {
   const user = localStorage.getItem('user');
   
   if (!token || !user) {
-    window.location.href = '/login.html';
+    window.location.href = '/login-staff.html';
     return;
   }
 
@@ -21,12 +21,21 @@ function checkAuth() {
   
   if (currentUser.tipo_usuario !== 1) {
     alert('No tienes permisos de administrador para acceder a esta sección');
-    window.location.href = '/login.html';
+    window.location.href = '/login-staff.html';
     return;
   }
 
   document.getElementById('userName').textContent = currentUser.nombre || 'Administrador';
 }
+
+document.getElementById('estadisticasLink').addEventListener('click', function(e) {
+    const token = localStorage.getItem('token');
+    if (token) {
+        const url = `dashboard-estadisticas.html?token=${encodeURIComponent(token)}`;
+        window.open(url, '_blank');
+        e.preventDefault();
+    }
+});
 
 function setupEventListeners() {
   document.querySelectorAll('.nav-item').forEach(item => {
@@ -1040,7 +1049,7 @@ function getAuthHeaders() {
 function logout() {
   localStorage.removeItem('token');
   localStorage.removeItem('user');
-  window.location.href = '/login.html';
+  window.location.href = '/login-staff.html';
 }
 
 document.addEventListener('DOMContentLoaded', function() {
