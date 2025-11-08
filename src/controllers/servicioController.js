@@ -1,21 +1,28 @@
 import pool from "../config/db.js";
 
+// ===============================
 // Listar servicios activos
+// ===============================
 export const listarServicios = async (req, res) => {
   try {
-    const [rows] = await pool.query("SELECT * FROM servicios WHERE activo = 1");
-    res.json(rows);
+    const [rows] = await pool.query("SELECT * FROM servicios WHERE activo = 1 ORDER BY descripcion ASC");
+    res.status(200).json(rows);
   } catch (error) {
-    res.status(500).json({ message: "Error al listar servicios", error: error.message });
+    console.error("Error al listar servicios:", error);
+    res.status(500).json({ message: "Error al listar servicios" });
   }
 };
 
-// crear servicio
+// ===============================
+// Crear nuevo servicio
+// ===============================
 export const crearServicio = async (req, res) => {
   const { descripcion, importe } = req.body;
 
   if (!descripcion || !importe) {
-    return res.status(400).json({ message: "Los campos descripcion e importe son obligatorios" });
+    return res.status(400).json({
+      message: "Los campos descripcion e importe son obligatorios",
+    });
   }
 
   try {
@@ -23,33 +30,43 @@ export const crearServicio = async (req, res) => {
       "INSERT INTO servicios (descripcion, importe, activo, creado, modificado) VALUES (?, ?, 1, NOW(), NOW())",
       [descripcion, importe]
     );
-    res.status(201).json({ message: "Servicio creado correctamente", servicio_id: result.insertId });
+    res.status(201).json({
+      message: "Servicio creado correctamente",
+      servicio_id: result.insertId,
+    });
   } catch (error) {
-    res.status(500).json({ message: "Error al crear servicio", error: error.message });
+    console.error("Error al crear servicio:", error);
+    res.status(500).json({ message: "Error al crear servicio" });
   }
 };
 
-// actualiza servicio
+// ===============================
+// Actualizar servicio existente
+// ===============================
 export const actualizarServicio = async (req, res) => {
   const { id } = req.params;
   const { descripcion, importe } = req.body;
 
   try {
     const [result] = await pool.query(
-      "UPDATE servicios SET descripcion = ?, importe = ?, modificado = NOW() WHERE servicio_id = ?",
+      "UPDATE servicios SET descripcion = ?, importe = ?, modificado = NOW() WHERE servicio_id = ? AND activo = 1",
       [descripcion, importe, id]
     );
 
-    if (result.affectedRows === 0)
+    if (result.affectedRows === 0) {
       return res.status(404).json({ message: "Servicio no encontrado" });
+    }
 
-    res.json({ message: "Servicio actualizado correctamente" });
+    res.status(200).json({ message: "Servicio actualizado correctamente" });
   } catch (error) {
-    res.status(500).json({ message: "Error al actualizar servicio", error: error.message });
+    console.error("Error al actualizar servicio:", error);
+    res.status(500).json({ message: "Error al actualizar servicio" });
   }
 };
 
-//limina (soft delete)
+// ===============================
+// Eliminar servicio (soft delete)
+// ===============================
 export const eliminarServicio = async (req, res) => {
   const { id } = req.params;
 
@@ -59,11 +76,13 @@ export const eliminarServicio = async (req, res) => {
       [id]
     );
 
-    if (result.affectedRows === 0)
+    if (result.affectedRows === 0) {
       return res.status(404).json({ message: "Servicio no encontrado" });
+    }
 
-    res.json({ message: "Servicio eliminado correctamente" });
+    res.status(200).json({ message: "Servicio eliminado correctamente" });
   } catch (error) {
-    res.status(500).json({ message: "Error al eliminar servicio", error: error.message });
+    console.error("Error al eliminar servicio:", error);
+    res.status(500).json({ message: "Error al eliminar servicio" });
   }
 };

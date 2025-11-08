@@ -12,7 +12,7 @@ const router = express.Router();
  * @swagger
  * tags:
  *   name: Servicios
- *   description: Endpoints para gestionar los servicios del sistema
+ *   description: Endpoints para gestionar los servicios
  */
 
 /**
@@ -39,7 +39,7 @@ const router = express.Router();
  *                 example: "Animación infantil"
  *               importe:
  *                 type: number
- *                 example: 12000.00
+ *                 example: 25000
  *     responses:
  *       201:
  *         description: Servicio creado exitosamente
@@ -49,15 +49,15 @@ const router = express.Router();
  * @swagger
  * /servicios/{id}:
  *   put:
- *     summary: Actualizar un servicio por ID
+ *     summary: Actualizar un servicio existente
  *     tags: [Servicios]
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
+ *         description: ID del servicio a actualizar
  *         schema:
  *           type: integer
- *         description: ID del servicio a actualizar
  *     requestBody:
  *       required: true
  *       content:
@@ -70,7 +70,7 @@ const router = express.Router();
  *                 example: "Decoración temática"
  *               importe:
  *                 type: number
- *                 example: 15000.00
+ *                 example: 18000
  *     responses:
  *       200:
  *         description: Servicio actualizado correctamente
@@ -81,9 +81,9 @@ const router = express.Router();
  *       - in: path
  *         name: id
  *         required: true
+ *         description: ID del servicio a eliminar
  *         schema:
  *           type: integer
- *         description: ID del servicio a eliminar
  *     responses:
  *       200:
  *         description: Servicio eliminado correctamente
@@ -92,7 +92,6 @@ const router = express.Router();
 // ===============================
 // Rutas del CRUD de servicios
 // ===============================
-
 router.get("/", listarServicios);
 router.post("/", crearServicio);
 router.put("/:id", actualizarServicio);
