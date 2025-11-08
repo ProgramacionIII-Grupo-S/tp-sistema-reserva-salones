@@ -1,32 +1,122 @@
-import pool from "../config/db.js";
+import * as serviciosModel from '../db/Servicios.js';
 
-export const obtenerServicios = async () => {
-  const [rows] = await pool.query("SELECT * FROM servicios WHERE activo = 1 ORDER BY descripcion ASC");
-  return rows;
-};
+export default class ServiciosService {
+  async buscarTodos() {
+    try {
+      return await serviciosModel.obtenerServicios();
+    } catch (error) {
+      throw new Error('Error al obtener los servicios: ' + error.message);
+    }
+  }
 
-export const crearServicio = async (data) => {
-  const { descripcion, importe } = data;
-  const [result] = await pool.query(
-    "INSERT INTO servicios (descripcion, importe, activo, creado, modificado) VALUES (?, ?, 1, NOW(), NOW())",
-    [descripcion, importe]
-  );
-  return result.insertId;
-};
+  async buscarPorId(id) {
+    try {
+      if (!id) {
+        throw new Error('ID de servicio requerido');
+      }
+      
+      const servicio = await serviciosModel.obtenerServicioPorId(id);
+      if (!servicio) {
+        throw new Error('Servicio no encontrado');
+      }
+      return servicio;
+    } catch (error) {
+      throw new Error('Error al buscar el servicio: ' + error.message);
+    }
+  }
 
-export const actualizarServicio = async (id, data) => {
-  const { descripcion, importe } = data;
-  const [result] = await pool.query(
-    "UPDATE servicios SET descripcion=?, importe=?, modificado=NOW() WHERE servicio_id=? AND activo=1",
-    [descripcion, importe, id]
-  );
-  return result.affectedRows;
-};
+  async crear(datos) {
+    try {
+      if (!datos.descripcion || datos.importe === undefined || datos.importe === null) {
+        throw new Error('Faltan datos obligatorios: descripcion, importe');
+      }
 
-export const eliminarServicio = async (id) => {
-  const [result] = await pool.query(
-    "UPDATE servicios SET activo=0, modificado=NOW() WHERE servicio_id=?",
-    [id]
-  );
-  return result.affectedRows;
-};
+      if (typeof datos.descripcion !== 'string' || datos.descripcion.trim().length === 0) {
+        throw new Error('La descripción debe ser un texto válido');
+      }
+
+      if (typeof datos.importe !== 'number' || datos.importe < 0) {
+        throw new Error('El importe debe ser un número mayor o igual a 0');
+      }
+
+      // Validar longitud de descripción
+      if (datos.descripcion.trim().length > 255) {
+        throw new Error('La descripción no puede exceder los 255 caracteres');
+      }
+
+      const nuevoServicio = await serviciosModel.crearServicio({
+        descripcion: datos.descripcion.trim(),
+        importe: datos.importe
+      });
+
+      if (!nuevoServicio) {
+        throw new Error('No se pudo crear el servicio. Puede que ya exista un servicio con esa descripción.');
+      }
+      
+      return nuevoServicio;
+    } catch (error) {
+      throw new Error('Error al crear el servicio: ' + error.message);
+    }
+  }
+
+  async actualizar(id, datos) {
+    try {
+      if (!id) {
+        throw new Error('ID de servicio requerido');
+      }
+
+      const servicioExistente = await serviciosModel.obtenerServicioPorId(id);
+      if (!servicioExistente) {
+        throw new Error('Servicio no encontrado');
+      }
+
+      if (datos.descripcion !== undefined) {
+        if (typeof datos.descripcion !== 'string' || datos.descripcion.trim().length === 0) {
+          throw new Error('La descripción debe ser un texto válido');
+        }
+        if (datos.descripcion.trim().length > 255) {
+          throw new Error('La descripción no puede exceder los 255 caracteres');
+        }
+      }
+
+      if (datos.importe !== undefined && (typeof datos.importe !== 'number' || datos.importe < 0)) {
+        throw new Error('El importe debe ser un número mayor o igual a 0');
+      }
+
+      const servicioActualizado = await serviciosModel.actualizarServicio(id, {
+        ...datos,
+        descripcion: datos.descripcion ? datos.descripcion.trim() : undefined
+      });
+
+      if (!servicioActualizado) {
+        throw new Error('No se pudo actualizar el servicio');
+      }
+
+      return servicioActualizado;
+    } catch (error) {
+      throw new Error('Error al actualizar el servicio: ' + error.message);
+    }
+  }
+
+  async eliminar(id) {
+    try {
+      if (!id) {
+        throw new Error('ID de servicio requerido');
+      }
+
+      const servicioExistente = await serviciosModel.obtenerServicioPorId(id);
+      if (!servicioExistente) {
+        throw new Error('Servicio no encontrado');
+      }
+
+      const resultado = await serviciosModel.eliminarServicio(id);
+      if (!resultado) {
+        throw new Error('No se pudo eliminar el servicio');
+      }
+
+      return resultado;
+    } catch (error) {
+      throw new Error('Error al eliminar el servicio: ' + error.message);
+    }
+  }
+}

@@ -1,32 +1,126 @@
-import pool from "../config/db.js";
+import * as turnosModel from '../db/Turnos.js';
 
-export const obtenerTurnos = async () => {
-  const [rows] = await pool.query("SELECT * FROM turnos WHERE activo = 1 ORDER BY orden ASC");
-  return rows;
-};
+export default class TurnosService {
+  async buscarTodos() {
+    try {
+      return await turnosModel.obtenerTurnos();
+    } catch (error) {
+      throw new Error('Error al obtener los turnos: ' + error.message);
+    }
+  }
 
-export const crearTurno = async (data) => {
-  const { orden, hora_desde, hora_hasta } = data;
-  const [result] = await pool.query(
-    "INSERT INTO turnos (orden, hora_desde, hora_hasta, activo, creado, modificado) VALUES (?, ?, ?, 1, NOW(), NOW())",
-    [orden, hora_desde, hora_hasta]
-  );
-  return result.insertId;
-};
+  async buscarPorId(id) {
+    try {
+      if (!id) {
+        throw new Error('ID de turno requerido');
+      }
+      
+      const turno = await turnosModel.obtenerTurnoPorId(id);
+      if (!turno) {
+        throw new Error('Turno no encontrado');
+      }
+      return turno;
+    } catch (error) {
+      throw new Error('Error al buscar el turno: ' + error.message);
+    }
+  }
 
-export const actualizarTurno = async (id, data) => {
-  const { orden, hora_desde, hora_hasta } = data;
-  const [result] = await pool.query(
-    "UPDATE turnos SET orden=?, hora_desde=?, hora_hasta=?, modificado=NOW() WHERE turno_id=? AND activo=1",
-    [orden, hora_desde, hora_hasta, id]
-  );
-  return result.affectedRows;
-};
+  async crear(datos) {
+    try {
+      if (!datos.orden || !datos.hora_desde || !datos.hora_hasta) {
+        throw new Error('Faltan datos obligatorios: orden, hora_desde, hora_hasta');
+      }
 
-export const eliminarTurno = async (id) => {
-  const [result] = await pool.query(
-    "UPDATE turnos SET activo=0, modificado=NOW() WHERE turno_id=?",
-    [id]
-  );
-  return result.affectedRows;
-};
+      if (typeof datos.orden !== 'number' || datos.orden <= 0) {
+        throw new Error('El orden debe ser un número mayor a 0');
+      }
+
+      // Validar formato de horas (formato HH:MM:SS)
+      const horaRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$/;
+      if (!horaRegex.test(datos.hora_desde)) {
+        throw new Error('Formato de hora_desde inválido. Use HH:MM:SS');
+      }
+
+      if (!horaRegex.test(datos.hora_hasta)) {
+        throw new Error('Formato de hora_hasta inválido. Use HH:MM:SS');
+      }
+
+      // Validar que hora_desde sea menor que hora_hasta
+      if (datos.hora_desde >= datos.hora_hasta) {
+        throw new Error('La hora_desde debe ser menor que la hora_hasta');
+      }
+
+      const nuevoTurno = await turnosModel.crearTurno(datos);
+      if (!nuevoTurno) {
+        throw new Error('No se pudo crear el turno. Puede que ya exista un turno con ese orden.');
+      }
+      
+      return nuevoTurno;
+    } catch (error) {
+      throw new Error('Error al crear el turno: ' + error.message);
+    }
+  }
+
+  async actualizar(id, datos) {
+    try {
+      if (!id) {
+        throw new Error('ID de turno requerido');
+      }
+
+      const turnoExistente = await turnosModel.obtenerTurnoPorId(id);
+      if (!turnoExistente) {
+        throw new Error('Turno no encontrado');
+      }
+
+      if (datos.orden && (typeof datos.orden !== 'number' || datos.orden <= 0)) {
+        throw new Error('El orden debe ser un número mayor a 0');
+      }
+
+      // Validar formato de horas si se proporcionan
+      const horaRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$/;
+      if (datos.hora_desde && !horaRegex.test(datos.hora_desde)) {
+        throw new Error('Formato de hora_desde inválido. Use HH:MM:SS');
+      }
+
+      if (datos.hora_hasta && !horaRegex.test(datos.hora_hasta)) {
+        throw new Error('Formato de hora_hasta inválido. Use HH:MM:SS');
+      }
+
+      // Validar que hora_desde sea menor que hora_hasta si ambas se proporcionan
+      if (datos.hora_desde && datos.hora_hasta && datos.hora_desde >= datos.hora_hasta) {
+        throw new Error('La hora_desde debe ser menor que la hora_hasta');
+      }
+
+      const turnoActualizado = await turnosModel.actualizarTurno(id, datos);
+      if (!turnoActualizado) {
+        throw new Error('No se pudo actualizar el turno');
+      }
+
+      return turnoActualizado;
+    } catch (error) {
+      throw new Error('Error al actualizar el turno: ' + error.message);
+    }
+  }
+
+  async eliminar(id) {
+    try {
+      if (!id) {
+        throw new Error('ID de turno requerido');
+      }
+
+      const turnoExistente = await turnosModel.obtenerTurnoPorId(id);
+      if (!turnoExistente) {
+        throw new Error('Turno no encontrado');
+      }
+
+      const resultado = await turnosModel.eliminarTurno(id);
+      if (!resultado) {
+        throw new Error('No se pudo eliminar el turno');
+      }
+
+      return resultado;
+    } catch (error) {
+      throw new Error('Error al eliminar el turno: ' + error.message);
+    }
+  }
+}
