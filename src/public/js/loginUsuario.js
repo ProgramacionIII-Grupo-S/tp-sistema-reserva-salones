@@ -1,5 +1,5 @@
 document.getElementById("btn-login").addEventListener("click", async () => {
-  const nombre_usuario = document.getElementById("usuario").value.trim();
+ const nombre_usuario = document.getElementById("usuario").value.trim();
   const contrasenia = document.getElementById("contrasenia").value.trim();
 
   if (!nombre_usuario || !contrasenia) {
@@ -21,8 +21,15 @@ document.getElementById("btn-login").addEventListener("click", async () => {
       return;
     }
 
+    if (data.user.tipo_usuario !== 3) {
+      alert("Esta plataforma es exclusiva para clientes. Los administradores y empleados deben usar sus respectivos sistemas.");
+      return;
+    }
+
     localStorage.setItem("token", data.token);
     localStorage.setItem("rol", data.user.tipo_usuario_nombre.toLowerCase());
+    localStorage.setItem("user", JSON.stringify(data.user));
+    localStorage.setItem("userType", data.user.tipo_usuario);
 
     alert(`Bienvenido, ${data.user.nombre} ${data.user.apellido}!`);
 

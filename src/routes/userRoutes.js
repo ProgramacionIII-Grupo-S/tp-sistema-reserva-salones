@@ -91,7 +91,7 @@ const router = express.Router();
  * @swagger
  * /users:
  *   get:
- *     summary: Obtener lista de usuarios (paginated) - Solo Admin
+ *     summary: Obtener lista de usuarios (paginated) - Solo Admin y Empleado
  *     tags: [Users]
  *     security:
  *       - bearerAuth: []
@@ -148,9 +148,9 @@ const router = express.Router();
  *       401:
  *         description: No autorizado - Token faltante o inválido
  *       403:
- *         description: Permisos insuficientes - Se requiere rol de administrador
+ *         description: Permisos insuficientes - Se requiere rol de administrador o empleado
  */
-router.get('/', authenticateToken, authorize(USER_TYPES.ADMIN), getUsers);
+router.get('/', authenticateToken, authorize(USER_TYPES.ADMIN, USER_TYPES.EMPLEADO), getUsers);
 
 /**
  * @swagger
@@ -181,7 +181,7 @@ router.get('/', authenticateToken, authorize(USER_TYPES.ADMIN), getUsers);
  *       403:
  *         description: Permisos insuficientes
  */
-router.get('/:id', authenticateToken, authorize(USER_TYPES.ADMIN), userIdValidator, handleValidationErrors, getUserById);
+router.get('/:id', authenticateToken, authorize(USER_TYPES.ADMIN, USER_TYPES.EMPLEADO), userIdValidator, handleValidationErrors, getUserById);
 
 /**
  * @swagger

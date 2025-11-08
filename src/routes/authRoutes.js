@@ -1,8 +1,9 @@
 import express from 'express';
-import { register, login, verify } from '../controllers/authController.js';
-import { authenticateToken } from '../middleware/authMiddleware.js';
+import { register, login, verify, registerClient } from '../controllers/authController.js';
+import { authenticateToken, authorize } from '../middleware/authMiddleware.js';
 import { registerValidator, loginValidator } from '../middleware/validators/validator.js';
 import { handleValidationErrors } from '../middleware/validators/validator.js'
+import { USER_TYPES } from '../utils/constants/userTypes.js';
 
 const router = express.Router();
 
@@ -33,10 +34,13 @@ const router = express.Router();
  *             properties:
  *               nombre:
  *                 type: string
+ *                 example: "Jonh"
  *               apellido:
  *                 type: string
+ *                 example: "Doe"
  *               nombre_usuario:
  *                 type: string
+ *                 example: "jonh@correo.com"
  *               contrasenia:
  *                 type: string
  *               celular:
@@ -57,7 +61,66 @@ const router = express.Router();
  *       400:
  *         description: Error en los datos enviados
  */
-router.post('/register', registerValidator, handleValidationErrors, register);
+router.post('/register', authenticateToken, authorize(USER_TYPES.ADMIN), registerValidator, handleValidationErrors, register);
+
+
+/**
+ * @swagger
+ * /auth/register/client:
+ *   post:
+ *     summary: Registrar un nuevo cliente (Público)
+ *     tags: [Auth]
+ *     description: |
+ *       Endpoint público para que los clientes se registren por sí mismos.
+ *       **No requiere autenticación. Siempre se registra como tipo cliente (3)**
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - nombre
+ *               - apellido
+ *               - nombre_usuario
+ *               - contrasenia
+ *             properties:
+ *               nombre:
+ *                 type: string
+ *                 example: "Juan"
+ *               apellido:
+ *                 type: string
+ *                 example: "Pérez"
+ *               nombre_usuario:
+ *                 type: string
+ *                 description: Email del cliente
+ *                 example: "juan@correo.com"
+ *               contrasenia:
+ *                 type: string
+ *                 example: "mi_contraseña_segura"
+ *               celular:
+ *                 type: string
+ *                 example: "3516784321"
+ *     responses:
+ *       201:
+ *         description: Cliente registrado con éxito
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Cliente registrado exitosamente"
+ *                 user_id:
+ *                   type: integer
+ *                   example: 1
+ *       400:
+ *         description: Error en los datos enviados
+ *       500:
+ *         description: Error interno del servidor
+ */
+router.post('/register/client', registerValidator, handleValidationErrors, registerClient);
 
 /**
  * @swagger
@@ -78,6 +141,7 @@ router.post('/register', registerValidator, handleValidationErrors, register);
  *             properties:
  *               nombre_usuario:
  *                 type: string
+ *                 example: "juan@correo.com"
  *               contrasenia:
  *                 type: string
  *     responses:

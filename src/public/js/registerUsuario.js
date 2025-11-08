@@ -13,7 +13,7 @@ document.getElementById("formRegisterUsuario").addEventListener("submit", async 
   errorContainer.innerHTML = "";
 
   try {
-    const response = await fetch("http://localhost:3000/api/auth/register", {
+    const response = await fetch("http://localhost:3000/api/auth/register/client", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data)

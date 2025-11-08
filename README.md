@@ -23,10 +23,11 @@ src
     ├── config/          # Configuración BD   
     ├── controllers/     # Lógica de controladores       
     ├── middleware/      # Middlewares (auth, validación, errores)   
-    ├── models/          # Modelos de Sequelize   
+    ├── db/              # Modelos de Sequelize   
+    ├── public/          # Avatars de usuarios, archivos estaticos de front
     ├── routes/          # Definición de rutas   
     ├── services/        # Lógica de negocio   
-    ├── utils/           # Utilidades (constantes, respuestas)   
+    ├── utils/           # Utilidades (constantes, respuestas, templates)   
     └── database/        # Migraciones y seeds      
 
 ## 🔧 Variables de Entorno

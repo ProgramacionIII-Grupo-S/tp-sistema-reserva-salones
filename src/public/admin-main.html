@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Panel Administrador - Sistema Reservas</title>
+    <link rel="stylesheet" href="./css/main-dashoard.css" />
+  </head>
+  <body>
+    <div class="dashboard-container">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <h2>🎉 Sistema Reservas</h2>
+          <p>Panel Administrador</p>
+        </div>
+        <nav class="sidebar-nav">
+          <a href="#dashboard" class="nav-item active" data-section="dashboard">
+            📊 Dashboard
+          </a>
+          <a href="#reservas" class="nav-item" data-section="reservas">
+            📋 Reservas
+          </a>
+          <a href="#usuarios" class="nav-item" data-section="usuarios">
+            👥 Usuarios
+          </a>
+          <a href="#salones" class="nav-item" data-section="salones">
+            🏠 Salones
+          </a>
+          <a href="#servicios" class="nav-item" data-section="servicios">
+            🛎️ Servicios
+          </a>
+          <a href="#turnos" class="nav-item" data-section="turnos">
+            ⏰ Turnos
+          </a>
+          <a href="#clientes" class="nav-item" data-section="clientes">
+            👤 Clientes
+          </a>
+          <a
+            href="dashboard-estadisticas.html"
+            class="nav-item"
+            target="_blank"
+          >
+            📈 Estadísticas y Reportes
+          </a>
+          <button id="logoutBtn" class="logout-btn">Cerrar Sesión</button>
+        </nav>
+      </aside>
+
+      <main class="main-content">
+        <header class="content-header">
+          <h1 id="sectionTitle">Dashboard Principal</h1>
+          <div class="user-info">
+            <span id="userName">Administrador</span>
+            <button id="userMenuBtn">👤</button>
+          </div>
+        </header>
+
+        <section id="dashboard" class="content-section active">
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-number" id="totalReservas">0</div>
+              <div class="stat-label">Reservas Totales</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number" id="totalUsuarios">0</div>
+              <div class="stat-label">Usuarios Registrados</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number" id="totalSalones">0</div>
+              <div class="stat-label">Salones Activos</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number" id="ingresosHoy">$0</div>
+              <div class="stat-label">Ingresos Hoy</div>
+            </div>
+          </div>
+
+          <div
+            class="info-box"
+            style="
+              margin: 30px 0;
+              padding: 20px;
+              background: #f8f9fa;
+              border-radius: 8px;
+            "
+          >
+            <h4>📊 ¿Necesitas reportes detallados?</h4>
+            <p>
+              Accede a <strong>Estadísticas y Reportes</strong> en el menú
+              lateral para ver análisis completos, gráficos y generar reportes
+              en PDF.
+            </p>
+          </div>
+
+          <div class="table-container">
+            <h3 style="margin: 20px 0">Reservas Recientes</h3>
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Cliente</th>
+                  <th>Salón</th>
+                  <th>Fecha</th>
+                  <th>Importe</th>
+                  <th>Estado</th>
+                </tr>
+              </thead>
+              <tbody id="reservasRecientes"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="reservas" class="content-section">
+          <div class="section-header">
+            <h2>Gestión de Reservas</h2>
+            <div class="section-actions">
+              <input
+                type="text"
+                id="searchReservas"
+                placeholder="Buscar reservas..."
+              />
+              <button class="btn btn-primary" onclick="cargarReservas()">
+                🔄 Actualizar
+              </button>
+            </div>
+          </div>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Cliente</th>
+                  <th>Salón</th>
+                  <th>Fecha</th>
+                  <th>Turno</th>
+                  <th>Importe</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="reservasBody"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="usuarios" class="content-section">
+          <div class="section-header">
+            <h2>Gestión de Usuarios</h2>
+            <div class="section-actions">
+              <button class="btn btn-primary" onclick="abrirModalUsuario()">
+                ➕ Nuevo Usuario
+              </button>
+              <input
+                type="text"
+                id="searchUsuarios"
+                placeholder="Buscar usuarios..."
+              />
+            </div>
+          </div>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Nombre</th>
+                  <th>Email</th>
+                  <th>Tipo</th>
+                  <th>Estado</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="usuariosBody"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="clientes" class="content-section">
+          <div class="section-header">
+            <h2>Listado de Clientes</h2>
+            <div class="section-actions">
+              <input
+                type="text"
+                id="searchClientes"
+                placeholder="Buscar clientes..."
+              />
+            </div>
+          </div>
+          <div class="table-container">
+            <table id="clientesTable">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Nombre</th>
+                  <th>Email</th>
+                  <th>Teléfono</th>
+                  <th>Reservas Activas</th>
+                </tr>
+              </thead>
+              <tbody id="clientesBody"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="salones" class="content-section">
+          <div class="section-header">
+            <h2>Gestión de Salones</h2>
+            <div class="section-actions">
+              <button class="btn btn-primary" onclick="abrirModalSalon()">
+                ➕ Nuevo Salón
+              </button>
+            </div>
+          </div>
+          <div class="table-container">
+            <table id="salonesTable">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Nombre</th>
+                  <th>Dirección</th>
+                  <th>Capacidad</th>
+                  <th>Importe</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="salonesBody"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="servicios" class="content-section">
+          <div class="section-header">
+            <h2>Gestión de Servicios</h2>
+            <div class="section-actions">
+              <button class="btn btn-primary" onclick="abrirModalServicio()">
+                ➕ Nuevo Servicio
+              </button>
+            </div>
+          </div>
+          <div class="table-container">
+            <table id="serviciosTable">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Descripción</th>
+                  <th>Importe</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="serviciosBody"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="turnos" class="content-section">
+          <div class="section-header">
+            <h2>Gestión de Turnos</h2>
+            <div class="section-actions">
+              <button class="btn btn-primary" onclick="abrirModalTurno()">
+                ➕ Nuevo Turno
+              </button>
+            </div>
+          </div>
+          <div class="table-container">
+            <table id="turnosTable">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Horario</th>
+                  <th>Hora Desde</th>
+                  <th>Hora Hasta</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="turnosBody"></tbody>
+            </table>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <div id="modalUsuario" class="modal">
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <h3 id="modalUsuarioTitle">Nuevo Usuario</h3>
+        <form id="formUsuario">
+          <input type="hidden" id="usuarioId" />
+          <div class="form-group">
+            <label for="usuarioNombre">Nombre:</label>
+            <input type="text" id="usuarioNombre" required />
+          </div>
+          <div class="form-group">
+            <label for="usuarioEmail">Email:</label>
+            <input type="email" id="usuarioEmail" required />
+          </div>
+          <div class="form-group">
+            <label for="usuarioTipo">Tipo de Usuario:</label>
+            <select id="usuarioTipo" required>
+              <option value="1">Administrador</option>
+              <option value="2">Empleado</option>
+              <option value="3">Cliente</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="usuarioPassword">Contraseña:</label>
+            <input type="password" id="usuarioPassword" required />
+          </div>
+          <button type="submit" class="btn btn-primary">Guardar Usuario</button>
+        </form>
+      </div>
+    </div>
+
+    <div id="modalSalon" class="modal">
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <h3 id="modalSalonTitle">Nuevo Salón</h3>
+        <form id="formSalon">
+          <input type="hidden" id="salonId" />
+          <div class="form-group">
+            <label for="salonTitulo">Nombre del Salón:</label>
+            <input type="text" id="salonTitulo" required />
+          </div>
+          <div class="form-group">
+            <label for="salonDireccion">Dirección:</label>
+            <input type="text" id="salonDireccion" required />
+          </div>
+          <div class="form-group">
+            <label for="salonCapacidad">Capacidad:</label>
+            <input type="number" id="salonCapacidad" required />
+          </div>
+          <div class="form-group">
+            <label for="salonImporte">Importe:</label>
+            <input type="number" step="0.01" id="salonImporte" required />
+          </div>
+          <button type="submit" class="btn btn-primary">Guardar</button>
+        </form>
+      </div>
+    </div>
+
+    <div id="modalServicio" class="modal">
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <h3 id="modalServicioTitle">Nuevo Servicio</h3>
+        <form id="formServicio">
+          <input type="hidden" id="servicioId" />
+          <div class="form-group">
+            <label for="servicioDescripcion">Descripción:</label>
+            <input type="text" id="servicioDescripcion" required />
+          </div>
+          <div class="form-group">
+            <label for="servicioImporte">Importe:</label>
+            <input type="number" step="0.01" id="servicioImporte" required />
+          </div>
+          <button type="submit" class="btn btn-primary">Guardar</button>
+        </form>
+      </div>
+    </div>
+
+    <div id="modalTurno" class="modal">
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <h3 id="modalTurnoTitle">Nuevo Turno</h3>
+        <form id="formTurno">
+          <input type="hidden" id="turnoId" />
+          <div class="form-group">
+            <label for="turnoOrden">Orden:</label>
+            <input type="number" id="turnoOrden" required />
+          </div>
+          <div class="form-group">
+            <label for="turnoHoraDesde">Hora Desde:</label>
+            <input type="time" id="turnoHoraDesde" required />
+          </div>
+          <div class="form-group">
+            <label for="turnoHoraHasta">Hora Hasta:</label>
+            <input type="time" id="turnoHoraHasta" required />
+          </div>
+          <button type="submit" class="btn btn-primary">Guardar</button>
+        </form>
+      </div>
+    </div>
+
+    <div id="modalReserva" class="modal">
+      <div class="modal-content reserva-modal">
+        <span class="close">&times;</span>
+        <h3 id="modalReservaTitle">Editar Reserva</h3>
+
+        <form id="formReserva">
+          <input type="hidden" id="reservaId" />
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="reservaCliente">Cliente:</label>
+              <select id="reservaCliente" required>
+                <option value="">Seleccionar cliente...</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="reservaSalon">Salón:</label>
+              <select id="reservaSalon" required>
+                <option value="">Seleccionar salón...</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="reservaFecha">Fecha:</label>
+              <input type="date" id="reservaFecha" required />
+            </div>
+            <div class="form-group">
+              <label for="reservaTurno">Turno:</label>
+              <select id="reservaTurno" required>
+                <option value="">Seleccionar turno...</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="reservaTematica">Temática (opcional):</label>
+            <input
+              type="text"
+              id="reservaTematica"
+              placeholder="Ej: Cumpleaños infantil, Boda, Fiesta de graduación..."
+            />
+          </div>
+
+          <div class="form-group">
+            <label>Servicios Adicionales:</label>
+            <div class="servicios-container">
+              <div id="serviciosContainer" class="servicios-checkbox">
+                <!-- Los servicios se cargarán dinámicamente -->
+              </div>
+            </div>
+          </div>
+
+          <div class="form-preview">
+            <h4>Resumen de la Reserva</h4>
+            <div class="preview-info">
+              <div>
+                <strong>Importe Salón:</strong>
+                <span id="previewImporteSalon">$0</span>
+              </div>
+              <div>
+                <strong>Servicios:</strong>
+                <span id="previewServicios">$0</span>
+              </div>
+              <div>
+                <strong>Total:</strong> <span id="previewTotal">$0</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              onclick="cerrarModalReserva()"
+            >
+              Cancelar
+            </button>
+            <button type="submit" class="btn btn-primary">
+              Guardar Cambios
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <script src="./js/admin-main.js"></script>
+  </body>
+</html>

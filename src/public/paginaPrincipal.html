@@ -1,51 +1,48 @@
 <!DOCTYPE html>
 <html lang="es">
   <head>
-   <meta charset="UTF-8">
-   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <title>Registro Usuario</title>
-   <link rel="stylesheet" href="./css/registerUsuario.css">
- </head>
- <body>
-   <header class="login-usuario-header">
-     <h1>Salones para tus fiestas</h1>
-     <nav>
-       <a href="./paginaPrincipal.html">Inicio</a> 
-       <a href="./loginUsuario.html">Iniciar sesión</a>
-     </nav>
-   </header>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Salones para eventos</title>
+    <link rel="stylesheet" href="/css/paginaPrincipal.css" />
+  </head>
+  <body>
+    <header class="main-header">
+      <h1>Salones para tus fiestas</h1>
+      <nav id="main-nav">
+        <a href="/paginaPrincipal.html">Inicio</a>
+        <a href="/loginUsuario.html" id="login-link">Iniciar sesión</a>
+        <a href="/registerUsuario.html" id="register-link">Registrarse</a>
+        <a
+          href="/reservar.html"
+          id="reservas-link"
+          style="display: none"
+          >Reservar</a
+        >
+         <a href="/perfil-usuario.html" id="perfil-link" style="display: none;">Mi Perfil</a>
+        <a href="#" id="logout-link" style="display: none">Cerrar sesión</a>
+        <span id="user-welcome" style="display: none"></span>
+      </nav>
+    </header>
 
-   <main>
-     <div class="register-container">
-       <h2>Registro de cliente</h2>
-       <form id="formRegisterUsuario">
-         <label for="nombre">Nombre:</label>
-         <input type="text" id="nombre" name="nombre" required>
-
-         <label for="apellido">Apellido:</label>
-         <input type="text" id="apellido" name="apellido" required>
-
-         <label for="usuario">Usuario:</label>
-         <input type="text" id="usuario" name="usuario" required>
-
-         <label for="contrasenia">Contraseña:</label>
-         <input type="password" id="contrasenia" name="contrasenia" required>
-
-         <label for="celular">Celular:</label>
-         <input type="text" id="celular" name="celular">
-
-         <button type="submit">Registrarse</button>
-       </form>
-       <div id="errores" style="color: red; margin-top: 10px;"></div>
-       <p>¿Ya tenés cuenta? <a href="./loginUsuario.html">Iniciar sesión</a></p>
-     </div>
-   </main>
+    <main>
+      <section class="imagen-principal">
+        <img
+          src="https://images.pexels.com/photos/9147707/pexels-photo-9147707.jpeg?_gl=1*mnn4sw*_ga*NzM2MDAzMzQ3LjE3NDU2Mzg4NDk.*_ga_8JE65Q40S6*czE3NjIzMDM1NTYkbzQkZzEkdDE3NjIzMDQzODckajM4JGwwJGgw"
+          alt="Niños con disfraces"
+        />
+      </section>
+      <section id="salones-container" class="salones">
+        <h2>Salones disponibles</h2>
+        <div id="lista-salones" class="lista-salones"></div>
+      </section>
+    </main>
 
    <footer>
      <p>Grupo S - Todos los derechos reservados</p>
    </footer>
 
-   <script src="./js/registerUsuario.js"></script>
- </body>
+    <script src="js/paginaPrincipal.js"></script>
+  </body>
 </html>
 
