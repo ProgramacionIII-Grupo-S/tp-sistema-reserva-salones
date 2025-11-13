@@ -11,15 +11,15 @@ export default class ReservasController {
 
   crear = async (req, res) => {
     try {
-      if (req.user.tipo_usuario !== USER_TYPES.CLIENTE) {
-        return res.status(403).json({
-          ok: false,
-          mensaje: "Solo los clientes pueden crear reservas",
-        });
-      }
-
       const datos = req.body;
-      datos.usuario_id = req.user.usuario_id;
+      
+      if (req.user.tipo_usuario === USER_TYPES.CLIENTE) {
+        atos.usuario_id = req.user.usuario_id;
+      }  else if (req.user.tipo_usuario === USER_TYPES.ADMIN) {
+        if (!datos.usuario_id) {
+          datos.usuario_id = req.user.usuario_id;
+        }
+      } 
 
       if (!datos.salon_id || !datos.turno_id || !datos.fecha_reserva) {
         return res.status(400).json({
@@ -94,15 +94,6 @@ export default class ReservasController {
 
   buscarTodos = async (req, res) => {
     try {
-      if (
-        ![USER_TYPES.ADMIN, USER_TYPES.EMPLEADO].includes(req.user.tipo_usuario)
-      ) {
-        return res.status(403).json({
-          ok: false,
-          mensaje: "No tienes permiso para ver todas las reservas",
-        });
-      }
-
       const reservas = await this.reservasService.buscarTodos();
       res.json({ ok: true, data: reservas });
     } catch (error) {
@@ -117,13 +108,6 @@ export default class ReservasController {
 
   buscarPorUsuario = async (req, res) => {
     try {
-      if (req.user.tipo_usuario !== USER_TYPES.CLIENTE) {
-        return res.status(403).json({
-          ok: false,
-          mensaje: "Solo los clientes pueden ver sus reservas",
-        });
-      }
-
       const usuarioId = req.user.usuario_id;
       const reservas = await this.reservasService.buscarPorUsuario(usuarioId);
 
@@ -147,16 +131,6 @@ export default class ReservasController {
         return res.status(404).json({
           ok: false,
           mensaje: "Reserva no encontrada",
-        });
-      }
-
-      if (
-        req.user.tipo_usuario === USER_TYPES.CLIENTE &&
-        reserva.usuario_id !== req.user.usuario_id
-      ) {
-        return res.status(403).json({
-          ok: false,
-          mensaje: "No tienes permiso para acceder a esta reserva",
         });
       }
 
@@ -201,17 +175,6 @@ export default class ReservasController {
         return res.status(404).json({
           ok: false,
           mensaje: "Reserva no encontrada para actualizar",
-        });
-      }
-
-      if (
-        req.user.tipo_usuario === USER_TYPES.CLIENTE &&
-        reservaExistente.usuario_id !== req.user.usuario_id
-      ) {
-        await connection.rollback();
-        return res.status(403).json({
-          ok: false,
-          mensaje: "No tienes permiso para modificar esta reserva",
         });
       }
 
@@ -389,13 +352,6 @@ export default class ReservasController {
         });
       }
 
-      if (req.user.tipo_usuario === USER_TYPES.CLIENTE && reservaExistente.usuario_id !== req.user.usuario_id) {
-        return res.status(403).json({
-          ok: false,
-          mensaje: "No tienes permiso para eliminar esta reserva",
-        });
-      }
-
       await this.reservasService.eliminar(id);
 
       try {
@@ -410,15 +366,6 @@ export default class ReservasController {
           cancelado_por: req.user.tipo_usuario === USER_TYPES.CLIENTE ? 'Cliente' : 'Administrador'
         });
 
-        if (req.user.tipo_usuario !== USER_TYPES.CLIENTE) {
-          await this.notificacionesService.notificarReservaCanceladaCliente({
-            fecha: reservaExistente.fecha_reserva,
-            salon: reservaExistente.salon_nombre,
-            turno: `${reservaExistente.hora_desde} - ${reservaExistente.hora_hasta}`,
-            cliente: reservaExistente.cliente_nombre,
-            tematica: reservaExistente.tematica || 'No especificada'
-          });
-        }
       } catch (errorCorreo) {
         console.warn("Error al enviar correos de notificación de cancelación:", errorCorreo.message);
       }
@@ -449,13 +396,6 @@ export default class ReservasController {
   restaurar = async (req, res) => {
     try {
       const id = req.params.id;
-
-      if (req.user.tipo_usuario !== USER_TYPES.ADMIN) {
-        return res.status(403).json({
-          ok: false,
-          mensaje: "Solo los administradores pueden restaurar reservas",
-        });
-      }
 
       await this.reservasService.restaurar(id);
 

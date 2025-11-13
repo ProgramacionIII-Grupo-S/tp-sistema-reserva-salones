@@ -1,6 +1,6 @@
 import express from "express";
 import ReservasController from "../controllers/reservasController.js";
-import { authenticateToken } from "../middleware/authMiddleware.js";
+import { authenticateToken, requireAdmin, requireAdminOrEmployee, requireClient } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 const reservasController = new ReservasController();
@@ -161,10 +161,9 @@ const reservasController = new ReservasController();
  *       500:
  *         description: Error interno del servidor
  */
-router.get("/", authenticateToken, (req, res) =>
+router.get("/", authenticateToken, requireAdminOrEmployee, (req, res) =>  
   reservasController.buscarTodos(req, res)
 );
-
 /**
  * @swagger
  * /reservas/mis-reservas:
@@ -195,7 +194,7 @@ router.get("/", authenticateToken, (req, res) =>
  *       500:
  *         description: Error interno del servidor
  */
-router.get("/mis-reservas", authenticateToken, (req, res) =>
+router.get("/mis-reservas", authenticateToken, requireClient, (req, res) =>  
   reservasController.buscarPorUsuario(req, res)
 );
 
@@ -231,7 +230,7 @@ router.get("/mis-reservas", authenticateToken, (req, res) =>
  *       500:
  *         description: Error interno del servidor
  */
-router.get("/:id", authenticateToken, (req, res) =>
+router.get("/:id", authenticateToken, requireAdminOrEmployee, (req, res) =>
   reservasController.buscarPorId(req, res)
 );
 
@@ -241,7 +240,8 @@ router.get("/:id", authenticateToken, (req, res) =>
  *   post:
  *     summary: Crear una nueva reserva
  *     description: |
- *       El `usuario_id` se obtiene automáticamente del token JWT.  
+ *      Los CLIENTES crean reservas para sí mismos (usuario_id automático).
+ *       Los ADMIN pueden crear reservas para cualquier usuario.
  *       El `importe_total` y el `importe_salon` **se calculan automáticamente** en el servidor,
  *       en base al salón y los servicios seleccionados.
  *     tags: [Reservas]
@@ -254,20 +254,22 @@ router.get("/:id", authenticateToken, (req, res) =>
  *           schema:
  *             $ref: '#/components/schemas/NuevaReserva'
  *           examples:
- *             ejemploValido:
- *               summary: Ejemplo de reserva válida con temática
+ *              ejemploCliente:
+ *               summary: Ejemplo de reserva para cliente
  *               value:
  *                 salon_id: 2
  *                 turno_id: 1
  *                 fecha_reserva: "2025-11-12"
  *                 tematica: "Superhéroes"
  *                 servicios: [1, 3, 5]
- *             ejemploBasico:
- *               summary: Ejemplo de reserva básica sin temática
+ *             ejemploAdmin:
+ *               summary: Ejemplo de reserva creada por admin para un cliente
  *               value:
+ *                 usuario_id: 5
  *                 salon_id: 1
  *                 turno_id: 2
  *                 fecha_reserva: "2025-11-15"
+ *                 tematica: "Princesas"
  *                 servicios: [2, 4]
  *     responses:
  *       201:
@@ -292,7 +294,7 @@ router.get("/:id", authenticateToken, (req, res) =>
  *       500:
  *         description: Error interno del servidor
  */
-router.post("/", authenticateToken, (req, res) =>
+router.post("/", authenticateToken, requireClientOrAdmin, (req, res) =>  
   reservasController.crear(req, res)
 );
 
@@ -367,7 +369,7 @@ router.post("/", authenticateToken, (req, res) =>
  *       500:
  *         description: Error interno del servidor
  */
-router.put("/:id", authenticateToken, (req, res) =>
+router.put("/:id", authenticateToken, requireAdmin, (req, res) =>
   reservasController.actualizar(req, res)
 );
 
@@ -410,7 +412,7 @@ router.put("/:id", authenticateToken, (req, res) =>
  *       500:
  *         description: Error interno del servidor
  */
-router.delete("/:id", authenticateToken, (req, res) =>
+router.delete("/:id", authenticateToken, requireAdmin, (req, res) =>
   reservasController.eliminar(req, res)
 );
 
@@ -440,7 +442,7 @@ router.delete("/:id", authenticateToken, (req, res) =>
  *       500:
  *         description: Error interno del servidor
  */
-router.patch("/:id/restaurar", authenticateToken, (req, res) =>
+router.patch("/:id/restaurar", authenticateToken, requireAdmin, (req, res) =>
   reservasController.restaurar(req, res)
 );
 
