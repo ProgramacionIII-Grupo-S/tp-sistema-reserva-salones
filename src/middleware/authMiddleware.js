@@ -45,8 +45,9 @@ export const authorize = (...allowedRoles) => {
 };
 
 export const requireAdmin = authorize(USER_TYPES.ADMIN);
+export const requireClient = authorize(USER_TYPES.CLIENTE);
 export const requireAdminOrEmployee = authorize(USER_TYPES.ADMIN, USER_TYPES.EMPLEADO);
-
+export const requireClientOrAdmin = authorize(USER_TYPES.CLIENTE, USER_TYPES.ADMIN);
 
 
 

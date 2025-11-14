@@ -1,6 +1,6 @@
 import express from "express";
 import ReservasController from "../controllers/reservasController.js";
-import { authenticateToken } from "../middleware/authMiddleware.js";
+import { authenticateToken, requireAdmin, requireAdminOrEmployee, requireClient, requireClientOrAdmin } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 const reservasController = new ReservasController();
@@ -8,8 +8,8 @@ const reservasController = new ReservasController();
 /**
  * @swagger
  * tags:
- *   name: Reservas
- *   description: Gestión de reservas de salones (REST API)
+ *   - name: Reservas
+ *     description: Gestión de reservas de salones (REST API)
  */
 
 /**
@@ -43,6 +43,10 @@ const reservasController = new ReservasController();
  *             type: integer
  *           description: IDs de los servicios adicionales seleccionados
  *           example: [1, 3, 5]
+ *         usuario_id:
+ *           type: integer
+ *           description: ID del cliente (solo para ADMIN, opcional)
+ *           example: 5
  * 
  *     ReservaActualizada:
  *       type: object
@@ -54,21 +58,17 @@ const reservasController = new ReservasController();
  *         salon_id:
  *           type: integer
  *           example: 3
- *           description: ID del salón (si se cambia, recalcula importe automáticamente)
  *         turno_id:
  *           type: integer
  *           example: 2
- *           description: ID del turno
  *         tematica:
  *           type: string
  *           example: "Princesas"
- *           description: Nueva temática para la fiesta
  *         servicios:
  *           type: array
  *           items:
  *             type: integer
  *           example: [1, 2, 5]
- *           description: Lista de IDs de servicios contratados
  * 
  *     Reserva:
  *       type: object
@@ -137,7 +137,7 @@ const reservasController = new ReservasController();
  * @swagger
  * /reservas:
  *   get:
- *     summary: Obtener todas las reservas
+ *     summary: Obtener todas las reservas (Solo Admin y Empleados)
  *     tags: [Reservas]
  *     security:
  *       - bearerAuth: []
@@ -158,10 +158,12 @@ const reservasController = new ReservasController();
  *                     $ref: '#/components/schemas/Reserva'
  *       401:
  *         description: No autorizado - Token requerido
+ *       403:
+ *         description: Solo administradores y empleados pueden ver todas las reservas
  *       500:
  *         description: Error interno del servidor
  */
-router.get("/", authenticateToken, (req, res) =>
+router.get("/", authenticateToken, requireAdminOrEmployee, (req, res) =>  
   reservasController.buscarTodos(req, res)
 );
 
@@ -190,12 +192,10 @@ router.get("/", authenticateToken, (req, res) =>
  *                     $ref: '#/components/schemas/Reserva'
  *       401:
  *         description: No autorizado - Token requerido
- *       403:
- *         description: Solo los clientes pueden ver sus reservas
  *       500:
  *         description: Error interno del servidor
  */
-router.get("/mis-reservas", authenticateToken, (req, res) =>
+router.get("/mis-reservas", authenticateToken, requireClient, (req, res) =>  
   reservasController.buscarPorUsuario(req, res)
 );
 
@@ -231,7 +231,7 @@ router.get("/mis-reservas", authenticateToken, (req, res) =>
  *       500:
  *         description: Error interno del servidor
  */
-router.get("/:id", authenticateToken, (req, res) =>
+router.get("/:id", authenticateToken, requireAdminOrEmployee, (req, res) =>
   reservasController.buscarPorId(req, res)
 );
 
@@ -241,7 +241,8 @@ router.get("/:id", authenticateToken, (req, res) =>
  *   post:
  *     summary: Crear una nueva reserva
  *     description: |
- *       El `usuario_id` se obtiene automáticamente del token JWT.  
+ *       - **Clientes**: Solo pueden crear reservas para sí mismos (usuario_id se obtiene del token)
+ *       - **Administradores**: Pueden crear reservas para cualquier cliente especificando `usuario_id`
  *       El `importe_total` y el `importe_salon` **se calculan automáticamente** en el servidor,
  *       en base al salón y los servicios seleccionados.
  *     tags: [Reservas]
@@ -254,17 +255,18 @@ router.get("/:id", authenticateToken, (req, res) =>
  *           schema:
  *             $ref: '#/components/schemas/NuevaReserva'
  *           examples:
- *             ejemploValido:
- *               summary: Ejemplo de reserva válida con temática
+ *             cliente:
+ *               summary: Ejemplo para cliente (crea para sí mismo)
  *               value:
  *                 salon_id: 2
  *                 turno_id: 1
  *                 fecha_reserva: "2025-11-12"
  *                 tematica: "Superhéroes"
  *                 servicios: [1, 3, 5]
- *             ejemploBasico:
- *               summary: Ejemplo de reserva básica sin temática
+ *             admin:
+ *               summary: Ejemplo para administrador (crea para cliente específico)
  *               value:
+ *                 usuario_id: 5
  *                 salon_id: 1
  *                 turno_id: 2
  *                 fecha_reserva: "2025-11-15"
@@ -288,11 +290,11 @@ router.get("/:id", authenticateToken, (req, res) =>
  *       400:
  *         description: Datos faltantes o inválidos
  *       403:
- *         description: Solo los clientes pueden crear reservas
+ *         description: No tienes permisos para crear reservas
  *       500:
  *         description: Error interno del servidor
  */
-router.post("/", authenticateToken, (req, res) =>
+router.post("/", authenticateToken, requireClientOrAdmin, (req, res) =>  
   reservasController.crear(req, res)
 );
 
@@ -300,12 +302,8 @@ router.post("/", authenticateToken, (req, res) =>
  * @swagger
  * /reservas/{id}:
  *   put:
- *     summary: Actualiza una reserva existente
- *     description: >
- *       Permite modificar los datos de una reserva existente.  
- *       Si se cambian el salón o los servicios, los importes (`importe_salon` y `importe_total`)  
- *       se recalculan automáticamente en base a los valores actuales en la base de datos.  
- *       Los clientes pueden modificar salón, turno, fecha, temática y servicios.
+ *     summary: Actualiza una reserva existente (Solo Admin)
+ *     description: Solo los administradores pueden actualizar reservas existentes.
  *     tags: [Reservas]
  *     security:
  *       - bearerAuth: []
@@ -324,18 +322,8 @@ router.post("/", authenticateToken, (req, res) =>
  *           schema:
  *             $ref: '#/components/schemas/ReservaActualizada'
  *           examples:
- *             cliente:
- *               summary: Ejemplo de actualización para cliente
- *               description: Los clientes pueden modificar salón, turno, fecha, temática y servicios
- *               value:
- *                 salon_id: 2
- *                 turno_id: 3
- *                 fecha_reserva: "2025-12-20"
- *                 tematica: "Princesas Encantadas"
- *                 servicios: [1, 2, 3]
  *             admin:
  *               summary: Ejemplo de actualización para administrador
- *               description: Los administradores pueden modificar todos los campos
  *               value:
  *                 fecha_reserva: "2025-12-20"
  *                 salon_id: 3
@@ -361,13 +349,13 @@ router.post("/", authenticateToken, (req, res) =>
  *       400:
  *         description: Error en la solicitud (datos faltantes o inválidos)
  *       403:
- *         description: El usuario no tiene permiso para modificar esta reserva
+ *         description: Solo los administradores pueden actualizar reservas
  *       404:
  *         description: Reserva no encontrada
  *       500:
  *         description: Error interno del servidor
  */
-router.put("/:id", authenticateToken, (req, res) =>
+router.put("/:id", authenticateToken, requireAdmin, (req, res) =>
   reservasController.actualizar(req, res)
 );
 
@@ -375,7 +363,7 @@ router.put("/:id", authenticateToken, (req, res) =>
  * @swagger
  * /reservas/{id}:
  *   delete:
- *     summary: Eliminar una reserva
+ *     summary: Eliminar una reserva (Solo Admin)
  *     tags: [Reservas]
  *     security:
  *       - bearerAuth: []
@@ -402,7 +390,7 @@ router.put("/:id", authenticateToken, (req, res) =>
  *                   type: string
  *                   example: "Reserva eliminada correctamente"
  *       403:
- *         description: No tienes permiso para eliminar esta reserva
+ *         description: Solo los administradores pueden eliminar reservas
  *       404:
  *         description: Reserva no encontrada
  *       401:
@@ -410,7 +398,7 @@ router.put("/:id", authenticateToken, (req, res) =>
  *       500:
  *         description: Error interno del servidor
  */
-router.delete("/:id", authenticateToken, (req, res) =>
+router.delete("/:id", authenticateToken, requireAdmin, (req, res) =>
   reservasController.eliminar(req, res)
 );
 
@@ -440,7 +428,7 @@ router.delete("/:id", authenticateToken, (req, res) =>
  *       500:
  *         description: Error interno del servidor
  */
-router.patch("/:id/restaurar", authenticateToken, (req, res) =>
+router.patch("/:id/restaurar", authenticateToken, requireAdmin, (req, res) =>
   reservasController.restaurar(req, res)
 );
 
