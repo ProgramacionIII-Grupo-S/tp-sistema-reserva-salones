@@ -46,14 +46,20 @@ document.addEventListener("DOMContentLoaded", async () => {
     return;
   }
 
+  // Función para hacer peticiones autenticadas
+  function getAuthHeaders() {
+    return {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    };
+  }
+
   async function cargarSalonesDropdown() {
     try {
       console.log("Intentando cargar salones...");
 
       const response = await fetch("/api/salones", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: getAuthHeaders()
       });
 
       console.log("Status de respuesta:", response.status);
@@ -111,9 +117,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   async function cargarInformacionSalon(id) {
     try {
       const respSalon = await fetch(`/api/salones/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: getAuthHeaders()
       });
 
       if (!respSalon.ok) {
@@ -139,6 +143,10 @@ document.addEventListener("DOMContentLoaded", async () => {
       // Cambiar a la vista de formulario
       seleccionarSalonSection.style.display = "none";
       formularioReservaSection.style.display = "block";
+
+      // Cargar datos necesarios para el formulario
+      await cargarTurnos();
+      await cargarServicios();
     } catch (error) {
       console.error("Error cargando información del salón:", error);
       if (!manejarErrorToken(error)) {
@@ -146,6 +154,84 @@ document.addEventListener("DOMContentLoaded", async () => {
           "<p>No se pudo cargar la información del salón.</p>";
         seleccionarSalonSection.style.display = "none";
         formularioReservaSection.style.display = "block";
+      }
+    }
+  }
+
+  // Cargar turnos
+  async function cargarTurnos() {
+    try {
+      const respTurnos = await fetch("/api/turnos", {
+        headers: getAuthHeaders()
+      });
+      
+      if (!respTurnos.ok) {
+        if (respTurnos.status === 401) {
+          throw new Error("Token expirado o inválido");
+        }
+        throw new Error("No se pudieron cargar los turnos");
+      }
+      
+      const data = await respTurnos.json();
+      turnos = data.data || data;
+
+      turnoSelect.innerHTML = '<option value="">Selecciona un turno</option>';
+      turnos.forEach((turno) => {
+        const option = document.createElement("option");
+        option.value = turno.turno_id;
+        option.textContent = `${turno.hora_desde} - ${turno.hora_hasta}`;
+        turnoSelect.appendChild(option);
+      });
+    } catch (error) {
+      console.error("Error cargando turnos:", error);
+      if (!manejarErrorToken(error)) {
+        turnoSelect.innerHTML =
+          '<option value="">No se pudieron cargar los turnos</option>';
+      }
+    }
+  }
+
+  // Cargar servicios
+  async function cargarServicios() {
+    try {
+      const respServicios = await fetch("/api/servicios", {
+        headers: getAuthHeaders()
+      });
+      
+      if (!respServicios.ok) {
+        if (respServicios.status === 401) {
+          throw new Error("Token expirado o inválido");
+        }
+        throw new Error("No se pudieron cargar los servicios");
+      }
+      
+      const data = await respServicios.json();
+      servicios = data.data || data;
+
+      serviciosContainer.innerHTML = "";
+      servicios.forEach((servicio) => {
+        const div = document.createElement("div");
+        div.className = "servicio-item";
+
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.id = `servicio-${servicio.servicio_id}`;
+        checkbox.value = servicio.servicio_id;
+        checkbox.className = "checkbox-servicio";
+
+        const label = document.createElement("label");
+        label.htmlFor = checkbox.id;
+        label.textContent = `${servicio.descripcion} - $${servicio.importe}`;
+
+        div.appendChild(checkbox);
+        div.appendChild(label);
+        serviciosContainer.appendChild(div);
+      });
+    } catch (error) {
+      console.error("Error cargando servicios:", error);
+      if (!manejarErrorToken(error)) {
+        serviciosContainer.innerHTML =
+          "<p>No se pudieron cargar los servicios adicionales.</p>";
       }
     }
   }
@@ -179,58 +265,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       cargarInformacionSalon(selectedSalonId);
     }
   });
-
-  // El resto del código para cargar turnos, servicios, etc. se mantiene igual
-  // Cargar turnos
-  try {
-    const respTurnos = await fetch("/api/turnos");
-    if (!respTurnos.ok) throw new Error("No se pudieron cargar los turnos");
-    turnos = await respTurnos.json();
-
-    turnoSelect.innerHTML = '<option value="">Selecciona un turno</option>';
-    turnos.forEach((turno) => {
-      const option = document.createElement("option");
-      option.value = turno.turno_id;
-      option.textContent = `${turno.hora_desde} - ${turno.hora_hasta}`;
-      turnoSelect.appendChild(option);
-    });
-  } catch (error) {
-    console.error("Error cargando turnos:", error);
-    turnoSelect.innerHTML =
-      '<option value="">No se pudieron cargar los turnos</option>';
-  }
-
-  // Cargar servicios
-  try {
-    const respServicios = await fetch("/api/servicios");
-    if (!respServicios.ok)
-      throw new Error("No se pudieron cargar los servicios");
-    servicios = await respServicios.json();
-
-    serviciosContainer.innerHTML = "";
-    servicios.forEach((servicio) => {
-      const div = document.createElement("div");
-      div.className = "servicio-item";
-
-      const checkbox = document.createElement("input");
-      checkbox.type = "checkbox";
-      checkbox.id = `servicio-${servicio.servicio_id}`;
-      checkbox.value = servicio.servicio_id;
-      checkbox.className = "checkbox-servicio";
-
-      const label = document.createElement("label");
-      label.htmlFor = checkbox.id;
-      label.textContent = `${servicio.descripcion} - $${servicio.importe}`;
-
-      div.appendChild(checkbox);
-      div.appendChild(label);
-      serviciosContainer.appendChild(div);
-    });
-  } catch (error) {
-    console.error("Error cargando servicios:", error);
-    serviciosContainer.innerHTML =
-      "<p>No se pudieron cargar los servicios adicionales.</p>";
-  }
 
   // Actualizar resumen
   function actualizarResumen() {
@@ -288,68 +322,116 @@ document.addEventListener("DOMContentLoaded", async () => {
     .addEventListener("change", actualizarResumen);
   inputTematica.addEventListener("input", actualizarResumen);
 
-  // Confirmar reserva
-  btnConfirmar.addEventListener("click", async () => {
-    if (!salon) {
-      mensaje.textContent = "Por favor selecciona un salón primero.";
-      mensaje.style.color = "red";
-      return;
-    }
+// Confirmar reserva
+btnConfirmar.addEventListener("click", async () => {
+  if (!salon) {
+    mensaje.textContent = "Por favor selecciona un salón primero.";
+    mensaje.style.color = "red";
+    return;
+  }
 
-    const fecha = document.getElementById("fecha").value;
-    const turnoId = turnoSelect.value;
-    const tematica = inputTematica.value.trim();
-    const serviciosSeleccionados = servicios.filter((s) => {
-      const checkbox = document.getElementById(`servicio-${s.servicio_id}`);
-      return checkbox ? checkbox.checked : false;
+  const fecha = document.getElementById("fecha").value;
+  const turnoId = turnoSelect.value;
+  const tematica = inputTematica.value.trim();
+  const serviciosSeleccionados = servicios.filter((s) => {
+    const checkbox = document.getElementById(`servicio-${s.servicio_id}`);
+    return checkbox ? checkbox.checked : false;
+  }).map((s) => s.servicio_id);
+
+  if (!fecha || !turnoId) {
+    mensaje.textContent = "Por favor selecciona fecha y turno.";
+    mensaje.style.color = "red";
+    return;
+  }
+
+  const fechaSeleccionada = new Date(fecha);
+  const hoy = new Date();
+  hoy.setHours(0, 0, 0, 0);
+  
+  if (fechaSeleccionada < hoy) {
+    mensaje.textContent = "No puedes reservar para una fecha pasada.";
+    mensaje.style.color = "red";
+    return;
+  }
+
+  try {
+    btnConfirmar.disabled = true;
+    btnConfirmar.textContent = "Procesando...";
+    mensaje.textContent = "";
+    mensaje.style.color = "";
+
+    const userData = localStorage.getItem("user");
+    if (!userData) {
+      throw new Error("No se encontró información del usuario. Por favor, inicia sesión nuevamente.");
+    }
+    
+    const user = JSON.parse(userData);
+    const usuario_id = user.usuario_id;
+
+    console.log("Enviando datos de reserva:", {
+      usuario_id: usuario_id, 
+      salon_id: salon.salon_id,
+      fecha_reserva: fecha,
+      turno_id: turnoId,
+      tematica: tematica,
+      servicios: serviciosSeleccionados
     });
 
-    if (!fecha || !turnoId) {
-      mensaje.textContent = "Por favor selecciona fecha y turno.";
-      mensaje.style.color = "red";
-      return;
+    const res = await fetch("/api/reservas", {
+      method: "POST",
+      headers: getAuthHeaders(),
+      body: JSON.stringify({
+        usuario_id: parseInt(usuario_id), 
+        salon_id: parseInt(salon.salon_id),
+        turno_id: parseInt(turnoId),
+        fecha_reserva: fecha,
+        tematica: tematica || null,
+        servicios: serviciosSeleccionados
+      }),
+    });
+
+    console.log("Respuesta del servidor:", res.status);
+
+    if (!res.ok) {
+      let errorMessage = "Error al realizar la reserva.";
+      
+      try {
+        const errorData = await res.json();
+        console.error("Error data:", errorData);
+        errorMessage = errorData.mensaje || errorData.message || errorMessage;
+      } catch (parseError) {
+        console.error("Error parseando respuesta de error:", parseError);
+      }
+      
+      throw new Error(errorMessage);
     }
 
-    try {
-      const res = await fetch("/api/reservas", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          salon_id: salon.salon_id,
-          fecha_reserva: fecha,
-          turno_id: turnoId,
-          tematica: tematica,
-          servicios: serviciosSeleccionados.map((s) => s.servicio_id),
-        }),
-      });
+    const result = await res.json();
+    console.log("Reserva creada exitosamente:", result);
 
-      if (!res.ok) {
-        if (res.status === 401) {
-          throw new Error("Token expirado o inválido");
-        }
-        const errorData = await res.json();
-        throw new Error(errorData.message || "Error al realizar la reserva.");
-      }
+    mensaje.textContent = "¡Reserva confirmada con éxito!";
+    mensaje.style.color = "green";
 
-      const result = await res.json();
-      mensaje.textContent = "¡Reserva confirmada con éxito!";
-      mensaje.style.color = "green";
+    setTimeout(() => {
+      window.location.href = "/paginaPrincipal.html";
+    }, 2000);
 
-      setTimeout(() => {
-        window.location.href = "/mis-reservas.html";
-      }, 2000);
-    } catch (err) {
-      console.error("Error confirmando reserva:", err);
+  } catch (err) {
+    console.error("Error completo confirmando reserva:", err);
+    
+    if (err.message.includes("Token expirado") || err.message.includes("401")) {
       if (manejarErrorToken(err)) {
         return;
       }
-      mensaje.textContent = err.message || "Error de conexión al servidor.";
-      mensaje.style.color = "red";
     }
-  });
+    
+    mensaje.textContent = err.message || "Error de conexión al servidor.";
+    mensaje.style.color = "red";
+  } finally {
+    btnConfirmar.disabled = false;
+    btnConfirmar.textContent = "Confirmar reserva";
+  }
+});
 
   // Logout
   const logout = document.getElementById("logout");

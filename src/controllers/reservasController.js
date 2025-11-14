@@ -14,7 +14,7 @@ export default class ReservasController {
       const datos = req.body;
       
       if (req.user.tipo_usuario === USER_TYPES.CLIENTE) {
-        atos.usuario_id = req.user.usuario_id;
+        datos.usuario_id = req.user.usuario_id;
       }  else if (req.user.tipo_usuario === USER_TYPES.ADMIN) {
         if (!datos.usuario_id) {
           datos.usuario_id = req.user.usuario_id;
