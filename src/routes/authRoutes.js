@@ -62,7 +62,7 @@ const router = express.Router();
  *         description: Error en los datos enviados
  */
 router.post('/register', authenticateToken, authorize(USER_TYPES.ADMIN), registerValidator, handleValidationErrors, register);
-
+//router.post('/register', registerValidator,handleValidationErrors,register);
 
 /**
  * @swagger
