@@ -3,7 +3,6 @@ import ReservasController from "../controllers/reservasController.js";
 import {
   authenticateToken,
   requireAdmin,
-  requireEmployee,
   requireClient,
   requireAdminOrEmployee,
   requireClientOrAdmin
