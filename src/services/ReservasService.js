@@ -6,13 +6,8 @@ export default class ReservasService {
   }
 
   async crear(data) {
-    if (
-      !data.usuario_id ||
-      !data.salon_id ||
-      !data.turno_id ||
-      !data.fecha_reserva
-    ) {
-      throw new Error("Faltan datos obligatorios para crear la reserva");
+    if (!data.usuario_id || !data.salon_id || !data.turno_id || !data.fecha_reserva) {
+      throw new Error("Faltan datos obligatorios");
     }
 
     if (!Array.isArray(data.servicios)) {
@@ -27,62 +22,34 @@ export default class ReservasService {
   }
 
   async buscarPorUsuario(usuario_id) {
-    if (!usuario_id) {
-      throw new Error("ID de usuario requerido");
-    }
+    if (!usuario_id) throw new Error("ID de usuario requerido");
     return await this.reservasModel.buscarPorUsuario(usuario_id);
   }
 
   async buscarPorId(id) {
-    if (!id) {
-      throw new Error("ID de reserva requerido");
-    }
-
+    if (!id) throw new Error("ID requerido");
     const reserva = await this.reservasModel.buscarPorId(id);
     if (!reserva) throw new Error("Reserva no encontrada");
     return reserva;
   }
 
-   async actualizar(id, datos) {
-    if (!id) {
-      throw new Error("ID de reserva requerido");
-    }
+  async actualizar(id, datos) {
+    const existe = await this.reservasModel.buscarPorId(id);
+    if (!existe) throw new Error("Reserva no encontrada");
 
-    const reservaExistente = await this.reservasModel.buscarPorId(id);
-    if (!reservaExistente) throw new Error("Reserva no encontrada");
+    const camposProhibidos = ["reserva_id", "creado"];
+    camposProhibidos.forEach(c => delete datos[c]);
 
-    const camposNoEditables = ["reserva_id", "creado"];
-    camposNoEditables.forEach((campo) => delete datos[campo]);
-
-    const updated = await this.reservasModel.actualizar(id, datos);
-    if (!updated) throw new Error("No se realizaron cambios en la reserva");
-
-    return updated;
+    return await this.reservasModel.actualizar(id, datos);
   }
 
   async eliminar(id) {
-    if (!id) {
-      throw new Error("ID de reserva requerido");
-    }
-
-    const reservaExistente = await this.reservasModel.buscarPorId(id);
-    if (!reservaExistente) throw new Error("Reserva no encontrada");
-
-    const eliminada = await this.reservasModel.eliminar(id);
-    if (!eliminada) throw new Error("No se pudo eliminar la reserva");
-
-    return true;
+    const existe = await this.reservasModel.buscarPorId(id);
+    if (!existe) throw new Error("Reserva no encontrada");
+    return await this.reservasModel.eliminar(id);
   }
 
-  // Método opcional para restaurar
   async restaurar(id) {
-    if (!id) {
-      throw new Error("ID de reserva requerido");
-    }
-
-    const restaurada = await this.reservasModel.restaurar(id);
-    if (!restaurada) throw new Error("No se pudo restaurar la reserva");
-
-    return true;
+    return await this.reservasModel.restaurar(id);
   }
 }
